@@ -1,10 +1,13 @@
 ---
 marp: true
 ---
-# Web app communication in Elixir
+# Web components and Phoenix
 
-Some ideas for your consideration
+A play in two acts
 
+---
+
+# WARNING: Un-fleshed out ideas ahead!
 ---
 # A brief history of web apps
 
@@ -34,7 +37,7 @@ Some ideas for your consideration
 # Web Components
 * They are just HTML elements
 * LiveView already renders HTML
-* Seems like fit
+* Seems like a fit
 ---
 # How to avoid client-side complexity
 * Dumb components
@@ -43,11 +46,72 @@ Some ideas for your consideration
 ---
 # LiveView and Custom Events
 * Not supported OOTB
-* phoenix-custom-event-hook
-* Demo time!
+* [phoenix-custom-event-hook](https://github.com/gaslight/phoenix-custom-event-hook)
+* [Demo](https://github.com/gaslight/phoenix-custom-events-demo) time!
 ---
 # But what if you want a client app?
 * PWAs
 * Native-wrapped (Phonegap, Cordova)
 * Native mobile
 ---
+# What makes building javascript web apps terrible?
+* Is it really the javascript?
+* Would it still be terrible if it was simple enough?
+* What if we just had dumb components?
+---
+# Hosted apps (Shopify)
+* You want full UI control
+* Customize server side templates
+* Write your own you UI and call their API
+* Is there a better way?
+---
+# Redux and GenServers
+Pretty much the same if you squint really, really hard.
+
+---
+# Redux
+```javascript
+export default (state = 0, action) => {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1
+    case 'DECREMENT':
+      return state - 1
+    default:
+      return state
+  }
+}
+```
+---
+# GenServer
+```elixir
+
+def handle_call(:increment, _from, state) do
+  {:reply, :ok, state + 1}
+end
+
+def handle_call(:decrement, _from, state) do
+  {:reply, :ok, state - 1}
+end
+
+```
+---
+# (action, state) => new_state
+---
+# What if we move the state to the server?
+* Clients dispatch `CustomEvents` as actions
+* Listen to new state and re-render
+---
+# Introducing LiveState
+* live_state hex package
+* live-state npm
+---
+# live_state
+* `LiveStateChannel` behaviour
+* `handle_event` similar to LiveView
+---
+# live-state npm
+* subscribe to state
+* push `CustomEvent` over channel
+---
+# Demo: pretend_store
