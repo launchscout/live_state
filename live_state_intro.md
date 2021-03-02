@@ -6,8 +6,11 @@ marp: true
 A play in two acts
 
 ---
+# Hi
+I'm [Chris Nelson](http://twitter.com/superchris). I work at [Gaslight](https://teamgaslight.com/). We are hiring :)
 
-# WARNING: Un-fleshed out ideas ahead!
+---
+# WARNING: Somewhat baked ideas ahead!
 ---
 # A brief history of web apps
 
@@ -32,12 +35,18 @@ A play in two acts
 * You don't always want everything server-side rendered
   * GoogleMaps, Leaflet
 * What's the right level of abstraction when you don't?
-* Is there a better way than Hooks?
+* Is there a better way than Hooks or Alpine.js?
+* What's the right level of abstraction?
 ---
-# Web Components
-* They are just HTML elements
+# Web Components!
+* They are just (custom) HTML elements
 * LiveView already renders HTML
 * Seems like a fit
+---
+# Brief aside on Web Components
+* Don't be scared!
+* All the browsers support them
+* Github, IBM, Microsoft, Apple all ship em
 ---
 # How to avoid client-side complexity
 * Dumb components
@@ -57,7 +66,7 @@ A play in two acts
 # What makes building javascript web apps terrible?
 * Is it really the javascript?
 * Would it still be terrible if it was simple enough?
-* What if we just had dumb components?
+* What if the client side was just dumb components?
 ---
 # Hosted apps (Shopify)
 * You want full UI control
