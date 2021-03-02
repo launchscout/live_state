@@ -114,4 +114,6 @@ end
 * subscribe to state
 * push `CustomEvent` over channel
 ---
-# Demo: pretend_store
+# Demo: 
+[pretend_store server](https://github.com/superchris/pretend_store_server)
+[pretend-store client](https://github.com/superchris/pretend-store)
