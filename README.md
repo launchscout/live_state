@@ -15,7 +15,7 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/live_state](https://hexdocs.pm/live_state).
+## Usage
+
+We'll add some better instructions, but for now an [example](https://github.com/gaslight/live_state_comments) will probably help the most.
 
