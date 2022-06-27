@@ -1,6 +1,7 @@
 # LiveState
 
-**TODO: Add description**
+This project exists to facilitate building the servier side of embedded apps, or micro-front-end apps, 
+in Elixir. 
 
 ## Installation
 
