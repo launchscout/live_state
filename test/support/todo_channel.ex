@@ -1,5 +1,5 @@
 defmodule LiveState.Test.TodoChannel do
-  use LiveState.LiveStateChannel, web_module: LiveState.Test.Web
+  use LiveState.Channel, web_module: LiveState.Test.Web
   alias LiveState.Event
 
   def init(_socket) do
