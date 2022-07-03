@@ -1,4 +1,4 @@
-defmodule LiveState.LiveStateChannel do
+defmodule LiveState.Channel do
   import Phoenix.Socket
 
   alias LiveState.Event
@@ -43,7 +43,7 @@ defmodule LiveState.LiveStateChannel do
         end
       end
 
-      def state_key, do: "state"
+      def state_key, do: :state
 
       def handle_message(_message, state), do: {:ok, state}
 
