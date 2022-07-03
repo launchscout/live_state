@@ -36,4 +36,17 @@ defmodule LiveState.LiveStateChannelTest do
 
     assert_push("state:change", %{todos: [%{"description" => "And another one"}]})
   end
+
+  test "handle_event with reply", %{socket: socket} do
+    push(socket, "lvs_evt:add_todo_with_one_reply", %{"description" => "Do the thing"})
+    assert_push("state:change", %{todos: [%{"description" => "Do the thing"}]})
+    assert_push("reply_event", %{foo: "bar"})
+  end
+
+  test "handle_event with multi event reply", %{socket: socket} do
+    push(socket, "lvs_evt:add_todo_with_two_replies", %{"description" => "Do the thing"})
+    assert_push("state:change", %{todos: [%{"description" => "Do the thing"}]})
+    assert_push("reply_event1", %{foo: "bar"})
+    assert_push("reply_event2", %{bing: "baz"})
+  end
 end

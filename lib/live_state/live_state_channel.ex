@@ -1,6 +1,8 @@
 defmodule LiveState.LiveStateChannel do
   import Phoenix.Socket
 
+  alias LiveState.Event
+
   @callback init(socket :: Socket.t()) :: {:ok, state :: term()}
   @callback handle_event(event_name :: binary(), payload :: term(), state :: term()) ::
               {:reply, result :: term, new_state :: any()} | {:no_reply, new_state :: term}
@@ -54,8 +56,10 @@ defmodule LiveState.LiveStateChannel do
         events |> Enum.map(&push_event(socket, &1))
       end
 
-      defp push_event(socket, %{name: name, payload: payload}) do
-        push(socket, name, payload)
+      defp push_events(socket, event), do: push_event(socket, event)
+
+      defp push_event(socket, %Event{name: name, detail: detail}) do
+        push(socket, name, detail)
       end
 
       defoverridable state_key: 0, handle_message: 2
