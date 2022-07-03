@@ -41,6 +41,10 @@ defmodule LiveState.LiveStateChannel do
         end
       end
 
+      def state_key, do: "state"
+
+      def handle_message(_message, state), do: {:ok, state}
+
       defp update_state(socket, new_state) do
         push(socket, "state:change", new_state)
         {:noreply, socket |> assign(state_key(), new_state)}
@@ -53,6 +57,8 @@ defmodule LiveState.LiveStateChannel do
       defp push_event(socket, %{name: name, payload: payload}) do
         push(socket, name, payload)
       end
+
+      defoverridable state_key: 0, handle_message: 2
     end
   end
 end
