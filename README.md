@@ -15,6 +15,13 @@ def deps do
   ]
 end
 ```
+## Documentation
+
+[Docs](https://hexdocs.pm/live_state/) are available in the [hex package](https://hex.pm/packages/live_state).
+
+## Client
+
+For the client, you will likely want to use the [live-state](https://github.com/gaslight/live-state) npm.
 
 ## Usage
 
