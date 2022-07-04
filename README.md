@@ -5,13 +5,13 @@ in Elixir.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+This package can be installed
 by adding `live_state` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:live_state, "~> 0.1.0"}
+    {:live_state, "~> 0.2.0"}
   ]
 end
 ```
