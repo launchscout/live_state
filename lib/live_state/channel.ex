@@ -1,13 +1,33 @@
 defmodule LiveState.Channel do
+  @moduledoc """
+  To build a LiveState application, you'll first want to add a channel that implements this
+  behaviour.
+  """
   import Phoenix.Socket
 
   alias LiveState.Event
 
+  @doc """
+  Returns the initial application state. Called just after connection
+  """
   @callback init(socket :: Socket.t()) :: {:ok, state :: term()}
+
+  @doc """
+  Receives an event an payload from the client and current state. Returns the new state along with (optionally)
+  a single or list of `LiveState.Event` to dispatch to client
+  """
   @callback handle_event(event_name :: binary(), payload :: term(), state :: term()) ::
-              {:reply, result :: term, new_state :: any()} | {:no_reply, new_state :: term}
+              {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
+              | {:no_reply, new_state :: term}
+
+  @doc """
+  The key on assigns to hold application state. Defaults to `state`.
+  """
   @callback state_key() :: atom()
 
+  @doc """
+  Receives pubsub message and current state. Returns new state
+  """
   @callback handle_message(message :: term(), state :: term()) :: {:ok, term()} | {:error, any()}
 
   defmacro __using__(web_module: web_module) do
@@ -62,7 +82,7 @@ defmodule LiveState.Channel do
         push(socket, name, detail)
       end
 
-      defoverridable state_key: 0, handle_message: 2
+      defoverridable state_key: 0, handle_message: 2, handle_in: 3, handle_info: 2, join: 3
     end
   end
 end
