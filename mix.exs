@@ -6,7 +6,7 @@ defmodule LiveState.MixProject do
   def project do
     [
       app: :live_state,
-      version: "0.2.0",
+      version: "0.3.0",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
