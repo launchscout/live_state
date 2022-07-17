@@ -10,7 +10,8 @@ defmodule LiveState.Channel do
   @doc """
   Returns the initial application state. Called just after connection
   """
-  @callback init(socket :: Socket.t()) :: {:ok, state :: term()}
+  @callback init(channel :: binary(), payload :: term(), socket :: Socket.t()) ::
+              {:ok, state :: term()}
 
   @doc """
   Receives an event an payload from the client and current state. Returns the new state along with (optionally)
@@ -28,7 +29,9 @@ defmodule LiveState.Channel do
   @doc """
   Receives pubsub message and current state. Returns new state
   """
-  @callback handle_message(message :: term(), state :: term()) :: {:ok, term()} | {:error, any()}
+  @callback handle_message(message :: term(), state :: term()) ::
+              {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
+              | {:no_reply, new_state :: term}
 
   defmacro __using__(web_module: web_module) do
     quote do
@@ -36,40 +39,40 @@ defmodule LiveState.Channel do
 
       @behaviour unquote(__MODULE__)
 
-      def join(_channel, _payload, socket) do
-        send(self(), :after_join)
+      def join(channel, payload, socket) do
+        send(self(), {:after_join, channel, payload})
         {:ok, socket}
       end
 
-      def handle_info(:after_join, socket) do
-        {:ok, state} = init(socket)
+      def handle_info({:after_join, channel, payload}, socket) do
+        {:ok, state} = init(channel, payload, socket)
         push(socket, "state:change", state)
         {:noreply, socket |> assign(state_key(), state)}
       end
 
       def handle_info(message, %{assigns: assigns} = socket) do
-        {:ok, new_state} = handle_message(message, Map.get(assigns, state_key()))
-        update_state(socket, new_state)
+        handle_message(message, Map.get(assigns, state_key())) |> maybe_handle_reply(socket)
       end
 
       def handle_in("lvs_evt:" <> event_name, payload, %{assigns: assigns} = socket) do
-        case handle_event(event_name, payload, Map.get(assigns, state_key())) do
-          {:noreply, new_state} ->
-            update_state(socket, new_state)
-
-          {:reply, event_or_events, new_state} ->
-            push_events(socket, event_or_events)
-            update_state(socket, new_state)
-        end
+        handle_event(event_name, payload, Map.get(assigns, state_key()))
+        |> maybe_handle_reply(socket)
       end
 
       def state_key, do: :state
 
-      def handle_message(_message, state), do: {:ok, state}
+      def handle_message(_message, state), do: {:noreply, state}
 
       defp update_state(socket, new_state) do
         push(socket, "state:change", new_state)
         {:noreply, socket |> assign(state_key(), new_state)}
+      end
+
+      defp maybe_handle_reply({:noreply, new_state}, socket), do: update_state(socket, new_state)
+
+      defp maybe_handle_reply({:reply, event_or_events, new_state}, socket) do
+        push_events(socket, event_or_events)
+        update_state(socket, new_state)
       end
 
       defp push_events(socket, events) when is_list(events) do
