@@ -13,13 +13,13 @@ defmodule LiveState.LiveStateChannelTest do
 
     {:ok, _, socket} =
       socket(UserSocket, "wut", %{})
-      |> subscribe_and_join(TodoChannel, "todos:all", %{"id" => 1})
+      |> subscribe_and_join(TodoChannel, "todos:all", %{"token" => "footoken"})
 
     {:ok, %{socket: socket}}
   end
 
   test "init" do
-    assert_push("state:change", %{todos: []})
+    assert_push("state:change", %{todos: [], token: "footoken"})
   end
 
   test "handle_event", %{socket: socket} do
@@ -34,6 +34,7 @@ defmodule LiveState.LiveStateChannelTest do
       {:todo_added, %{"description" => "And another one"}}
     )
 
+    assert_push("reply_event", %{foo: "bar"})
     assert_push("state:change", %{todos: [%{"description" => "And another one"}]})
   end
 

@@ -2,9 +2,9 @@ defmodule LiveState.Test.TodoChannel do
   use LiveState.Channel, web_module: LiveState.Test.Web
   alias LiveState.Event
 
-  def init(_socket) do
+  def init(_channel, %{"token" => token}, _socket) do
     Phoenix.PubSub.subscribe(LiveState.Test.PubSub, "todos")
-    {:ok, %{todos: []}}
+    {:ok, %{todos: [], token: token}}
   end
 
   def handle_event("add_todo", todo, %{todos: todos}) do
@@ -24,6 +24,6 @@ defmodule LiveState.Test.TodoChannel do
   end
 
   def handle_message({:todo_added, todo}, %{todos: todos}) do
-    {:ok, %{todos: [todo | todos]}}
+    {:reply, %Event{name: "reply_event", detail: %{foo: "bar"}}, %{todos: [todo | todos]}}
   end
 end
