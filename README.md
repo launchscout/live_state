@@ -60,6 +60,17 @@ And returns a tuple whose last element is the new state. It can also return
 one or many events to dispatch on the calling DOM Element:
 
 ```elixir
+  def handle_event("add_todo_with_one_reply", todo, %{todos: todos}) do
+    {:reply, %Event{name: "reply_event", detail: %{foo: "bar"}}, %{todos: [todo | todos]}}
+  end
+
+  def handle_event("add_todo_with_two_replies", todo, %{todos: todos}) do
+    {:reply,
+     [
+       %Event{name: "reply_event1", detail: %{foo: "bar"}},
+       %Event{name: "reply_event2", detail: %{bing: "baz"}}
+     ], %{todos: [todo | todos]}}
+  end
 ```
 
 ## Testing
