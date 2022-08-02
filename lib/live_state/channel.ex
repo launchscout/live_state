@@ -19,7 +19,7 @@ defmodule LiveState.Channel do
   """
   @callback handle_event(event_name :: binary(), payload :: term(), state :: term()) ::
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
-              | {:no_reply, new_state :: term}
+              | {:noreply, new_state :: term}
 
   @doc """
   The key on assigns to hold application state. Defaults to `state`.
@@ -31,7 +31,7 @@ defmodule LiveState.Channel do
   """
   @callback handle_message(message :: term(), state :: term()) ::
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
-              | {:no_reply, new_state :: term}
+              | {:noreply, new_state :: term}
 
   defmacro __using__(web_module: web_module) do
     quote do
@@ -63,6 +63,8 @@ defmodule LiveState.Channel do
 
       def handle_message(_message, state), do: {:noreply, state}
 
+      def handle_event(_message, _payload, state), do: {:noreply, state}
+
       defp update_state(socket, new_state) do
         push(socket, "state:change", new_state)
         {:noreply, socket |> assign(state_key(), new_state)}
@@ -85,7 +87,7 @@ defmodule LiveState.Channel do
         push(socket, name, detail)
       end
 
-      defoverridable state_key: 0, handle_message: 2, handle_in: 3, handle_info: 2, join: 3
+      defoverridable state_key: 0, handle_message: 2, handle_in: 3, handle_info: 2, handle_event: 3, join: 3
     end
   end
 end
