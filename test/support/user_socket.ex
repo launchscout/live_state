@@ -9,6 +9,7 @@ defmodule LiveState.Test.UserSocket do
   ## Channels
 
   channel("todos:*", LiveState.Test.TodoChannel)
+  channel("foo:*", LiveState.Test.PatchChannel)
 
   @impl true
   def connect(_params, socket, _connect_info) do

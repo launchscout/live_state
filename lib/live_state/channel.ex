@@ -33,11 +33,12 @@ defmodule LiveState.Channel do
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
               | {:noreply, new_state :: term}
 
-  defmacro __using__(web_module: web_module) do
+  defmacro __using__(opts) do
     quote do
-      use unquote(web_module), :channel
+      use unquote(Keyword.get(opts, :web_module)), :channel
 
       @behaviour unquote(__MODULE__)
+      @json_patch unquote(Keyword.get(opts, :json_patch))
 
       def join(channel, payload, socket) do
         send(self(), {:after_join, channel, payload})
@@ -65,8 +66,16 @@ defmodule LiveState.Channel do
 
       def handle_event(_message, _payload, state), do: {:noreply, state}
 
-      defp update_state(socket, new_state) do
-        push(socket, "state:change", new_state)
+      defp update_state(%{assigns: assigns} = socket, new_state) do
+        current_state = Map.get(assigns, state_key())
+        IO.inspect(@json_patch, label: "json patch")
+
+        if @json_patch do
+          push(socket, "state:patch", %{patch: JSONDiff.diff(current_state, new_state)})
+        else
+          push(socket, "state:change", new_state)
+        end
+
         {:noreply, socket |> assign(state_key(), new_state)}
       end
 
@@ -87,7 +96,12 @@ defmodule LiveState.Channel do
         push(socket, name, detail)
       end
 
-      defoverridable state_key: 0, handle_message: 2, handle_in: 3, handle_info: 2, handle_event: 3, join: 3
+      defoverridable state_key: 0,
+                     handle_message: 2,
+                     handle_in: 3,
+                     handle_info: 2,
+                     handle_event: 3,
+                     join: 3
     end
   end
 end
