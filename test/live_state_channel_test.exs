@@ -19,12 +19,19 @@ defmodule LiveState.LiveStateChannelTest do
   end
 
   test "init" do
-    assert_push("state:change", %{todos: [], token: "footoken"})
+    assert_push(
+      "state:change",
+      %{state: %{todos: [], token: "footoken"}, version: 0}
+    )
   end
 
   test "handle_event", %{socket: socket} do
     push(socket, "lvs_evt:add_todo", %{"description" => "Do the thing"})
-    assert_push("state:change", %{todos: [%{"description" => "Do the thing"}]})
+
+    assert_push("state:change", %{
+      state: %{todos: [%{"description" => "Do the thing"}]},
+      version: 1
+    })
   end
 
   test "handle_message" do
@@ -35,18 +42,28 @@ defmodule LiveState.LiveStateChannelTest do
     )
 
     assert_push("reply_event", %{foo: "bar"})
-    assert_push("state:change", %{todos: [%{"description" => "And another one"}]})
+
+    assert_push("state:change", %{
+      state: %{todos: [%{"description" => "And another one"}]},
+      version: 1
+    })
   end
 
   test "handle_event with reply", %{socket: socket} do
     push(socket, "lvs_evt:add_todo_with_one_reply", %{"description" => "Do the thing"})
-    assert_push("state:change", %{todos: [%{"description" => "Do the thing"}]})
+    assert_push("state:change", %{
+      state: %{todos: [%{"description" => "Do the thing"}]},
+      version: 1
+    })
     assert_push("reply_event", %{foo: "bar"})
   end
 
   test "handle_event with multi event reply", %{socket: socket} do
     push(socket, "lvs_evt:add_todo_with_two_replies", %{"description" => "Do the thing"})
-    assert_push("state:change", %{todos: [%{"description" => "Do the thing"}]})
+    assert_push("state:change", %{
+      state: %{todos: [%{"description" => "Do the thing"}]},
+      version: 1
+    })
     assert_push("reply_event1", %{foo: "bar"})
     assert_push("reply_event2", %{bing: "baz"})
   end

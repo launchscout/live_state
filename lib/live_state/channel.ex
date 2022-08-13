@@ -22,7 +22,12 @@ defmodule LiveState.Channel do
               | {:noreply, new_state :: term}
 
   @doc """
-  The key on assigns to hold application state. Defaults to `state`.
+  The key on assigns to hold application state. Defaults to `:state`.
+  """
+  @callback state_key() :: atom()
+
+  @doc """
+  The key on assigns to hold application state version. Defaults to `:version`.
   """
   @callback state_key() :: atom()
 
@@ -47,8 +52,8 @@ defmodule LiveState.Channel do
 
       def handle_info({:after_join, channel, payload}, socket) do
         {:ok, state} = init(channel, payload, socket)
-        push(socket, "state:change", state)
-        {:noreply, socket |> assign(state_key(), state)}
+        push_state_change(socket, state, 0)
+        {:noreply, socket |> assign(state_key(), state) |> assign(state_version_key(), 0)}
       end
 
       def handle_info(message, %{assigns: assigns} = socket) do
@@ -62,21 +67,23 @@ defmodule LiveState.Channel do
 
       def state_key, do: :state
 
+      def state_version_key, do: :version
+
       def handle_message(_message, state), do: {:noreply, state}
 
       def handle_event(_message, _payload, state), do: {:noreply, state}
 
       defp update_state(%{assigns: assigns} = socket, new_state) do
         current_state = Map.get(assigns, state_key())
-        IO.inspect(@json_patch, label: "json patch")
+        new_state_version = Map.get(assigns, state_version_key()) + 1
 
         if @json_patch do
-          push(socket, "state:patch", %{patch: JSONDiff.diff(current_state, new_state)})
+          push_json_patch(socket, current_state, new_state, new_state_version)
         else
-          push(socket, "state:change", new_state)
+          push_state_change(socket, new_state, new_state_version)
         end
 
-        {:noreply, socket |> assign(state_key(), new_state)}
+        {:noreply, socket |> assign(state_key(), new_state) |> assign(state_version_key(), new_state_version)}
       end
 
       defp maybe_handle_reply({:noreply, new_state}, socket), do: update_state(socket, new_state)
@@ -94,6 +101,18 @@ defmodule LiveState.Channel do
 
       defp push_event(socket, %Event{name: name, detail: detail}) do
         push(socket, name, detail)
+      end
+
+      defp push_state_change(socket, state, version) do
+        payload = %{} |> Map.put(state_key(), state) |> Map.put(state_version_key(), version)
+        push(socket, "state:change", payload)
+      end
+
+      defp push_json_patch(socket, current_state, new_state, version) do
+        push(socket, "state:patch", %{
+          patch: JSONDiff.diff(current_state, new_state),
+          version: version
+        })
       end
 
       defoverridable state_key: 0,
