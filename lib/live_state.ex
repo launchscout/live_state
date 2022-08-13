@@ -1,6 +1,8 @@
 defmodule LiveState do
   @moduledoc """
+
   # LiveState
+
   LiveState is a library to manage application state for a non elixir hosted
   application. A LiveState application roughly follows the pattern of Event Driven Architecture. Rather than
   requests and reponses, in a LiveState application your client emits Events and receives changes to

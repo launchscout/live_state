@@ -19,14 +19,16 @@ defmodule LiveState.JSONPatchTest do
   end
 
   test "init" do
-    assert_push("state:change", %{foo: "bar"})
+    assert_push("state:change", %{state: %{foo: "bar"}, version: 0})
   end
 
   test "handle_event", %{socket: socket} do
     push(socket, "lvs_evt:change_foo", %{"foo" => "not_bar"})
 
     assert_push("state:patch", %{
-      patch: [%{"op" => "replace", "path" => "/foo", "value" => "not_bar"}]
+      patch: [%{"op" => "replace", "path" => "/foo", "value" => "not_bar"}],
+      version: 1
     })
   end
+
 end
