@@ -88,7 +88,7 @@ For the client, you will likely want to use the [live-state](https://github.com/
 
 ## Examples
 
-* https://github.com/gaslight/live_state_comments
-* https://github.com/gaslight/livestate-comments
-* https://github.com/gaslight/discord_element
-* https://github.com/gaslight/discord-element
+* https://github.com/launchscout/live_state_comments
+* https://github.com/launchscout/livestate-comments
+* https://github.com/launchscout/discord_element
+* https://github.com/launchscout/discord-element
