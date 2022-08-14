@@ -86,7 +86,9 @@ in this codebase for how you can test with the channel helpers from Phoenix.
 
 For the client, you will likely want to use the [live-state](https://github.com/gaslight/live-state) npm.
 
-## Example
+## Examples
 
-[LiveState Comments](https://github.com/gaslight/live_state_comments) will probably help the most.
-
+* https://github.com/gaslight/live_state_comments
+* https://github.com/gaslight/livestate-comments
+* https://github.com/gaslight/discord_element
+* https://github.com/gaslight/discord-element
