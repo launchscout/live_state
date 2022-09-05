@@ -10,6 +10,7 @@ defmodule LiveState.Test.UserSocket do
 
   channel("todos:*", LiveState.Test.TodoChannel)
   channel("foo:*", LiveState.Test.PatchChannel)
+  channel("authorized:*", LiveState.Test.AuthorizedChannel)
 
   @impl true
   def connect(_params, socket, _connect_info) do

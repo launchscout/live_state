@@ -14,6 +14,13 @@ defmodule LiveState.Channel do
               {:ok, state :: term()}
 
   @doc """
+  Called from join to authorize the connection. Return `{:ok, socket}` to authorize or
+  `{:error, reason}` to deny. Default implementation returns `{:ok, socket}`
+  """
+  @callback authorize(channel :: binary(), payload :: term(), socket :: Socket.t()) ::
+              {:ok, socket :: Socket.t()} | {:error, binary()}
+
+  @doc """
   Receives an event an payload from the client and current state. Returns the new state along with (optionally)
   a single or list of `LiveState.Event` to dispatch to client
   """
@@ -46,8 +53,14 @@ defmodule LiveState.Channel do
       @json_patch unquote(Keyword.get(opts, :json_patch))
 
       def join(channel, payload, socket) do
-        send(self(), {:after_join, channel, payload})
-        {:ok, socket}
+        case authorize(channel, payload, socket) do
+          {:ok, socket} ->
+            send(self(), {:after_join, channel, payload})
+            {:ok, socket}
+
+          {:error, reason} ->
+            {:error, reason}
+        end
       end
 
       def handle_info({:after_join, channel, payload}, socket) do
@@ -64,6 +77,8 @@ defmodule LiveState.Channel do
         handle_event(event_name, payload, Map.get(assigns, state_key()))
         |> maybe_handle_reply(socket)
       end
+
+      def authorize(_channel, _payload, socket), do: {:ok, socket}
 
       def state_key, do: :state
 
@@ -83,7 +98,10 @@ defmodule LiveState.Channel do
           push_state_change(socket, new_state, new_state_version)
         end
 
-        {:noreply, socket |> assign(state_key(), new_state) |> assign(state_version_key(), new_state_version)}
+        {:noreply,
+         socket
+         |> assign(state_key(), new_state)
+         |> assign(state_version_key(), new_state_version)}
       end
 
       defp maybe_handle_reply({:noreply, new_state}, socket), do: update_state(socket, new_state)
@@ -120,6 +138,7 @@ defmodule LiveState.Channel do
                      handle_in: 3,
                      handle_info: 2,
                      handle_event: 3,
+                     authorize: 3,
                      join: 3
     end
   end
