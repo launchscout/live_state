@@ -84,7 +84,7 @@ in this codebase for how you can test with the channel helpers from Phoenix.
 
 ## Client
 
-For the client, you will likely want to use the [live-state](https://github.com/gaslight/live-state) npm.
+For the client, you will likely want to use the [phx-live-state](https://github.com/gaslight/live-state) npm.
 
 ## Examples
 

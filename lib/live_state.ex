@@ -18,6 +18,6 @@ defmodule LiveState do
   with a channel that uses the `LiveState.Channel` behaviour.
 
   You'll also want to use a client library to connect to a LiveState application. Currently this
-  exists for javascript in the [live-state](https://github.com/gaslight/live-state)
+  exists for javascript in the [phx-live-state](https://github.com/gaslight/live-state)
   """
 end
