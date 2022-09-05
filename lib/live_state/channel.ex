@@ -29,7 +29,7 @@ defmodule LiveState.Channel do
   @doc """
   The key on assigns to hold application state version. Defaults to `:version`.
   """
-  @callback state_key() :: atom()
+  @callback state_version_key() :: atom()
 
   @doc """
   Receives pubsub message and current state. Returns new state
