@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: livestate_testbed
-          repository: launchscout/livestate_testbed
+          repository: launchscout/live_state_testbed
       - name: Install testbed dependencies
         run: mix deps.get
         working-directory: livestate_testbed
