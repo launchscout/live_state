@@ -35,3 +35,31 @@ jobs:
       - name: Run tests
         run: mix test
         working-directory: live_state
+      - name: Checkout phx-live-state
+        uses: actions/checkout@v3
+        with:
+          path: live-state
+          repository: launchscout/live-state
+      - name: npm install live-state
+        run: npm install
+        working-directory: live-state
+      - name: build live-state
+        run: npm run build
+        working-directory: live-state
+      - name: Checkout testbed
+        uses: actions/checkout@v3
+        with:
+          path: livestate_testbed
+          repository: launchscout/livestate_testbed
+      - name: Install testbed dependencies
+        run: mix deps.get
+        working-directory: livestate_testbed
+      - name: npm install testbed assets
+        run: npm install
+        working-directory: livestate_testbed/assets
+      - name: build testbed javascript
+        run: npm run build
+        working-directory: livestate_testbed/assets
+      - name: Run testbed tests
+        run: mix test
+        working-directory: livestate_testbed
