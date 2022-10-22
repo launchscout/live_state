@@ -2,7 +2,6 @@ defmodule LiveState.AuthorizeTest do
   use ExUnit.Case
 
   import Phoenix.ChannelTest
-  alias LiveState.Test.AuthorizedChannel
   alias LiveState.Test.UserSocket
 
   @endpoint LiveState.Test.Endpoint

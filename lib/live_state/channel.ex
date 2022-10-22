@@ -11,7 +11,7 @@ defmodule LiveState.Channel do
   Returns the initial application state. Called just after connection
   """
   @callback init(channel :: binary(), payload :: term(), socket :: Socket.t()) ::
-              {:ok, state :: term()}
+              {:ok, state :: map() | Socket.t()} | {:error, reason :: any()}
 
   @doc """
   Called from join to authorize the connection. Return `{:ok, socket}` to authorize or
@@ -26,7 +26,17 @@ defmodule LiveState.Channel do
   """
   @callback handle_event(event_name :: binary(), payload :: term(), state :: term()) ::
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
-              | {:noreply, new_state :: term}
+              | {:noreply, new_state :: map()}
+
+  @callback handle_event(
+              event_name :: binary(),
+              payload :: term(),
+              state :: term(),
+              socket :: Socket.t()
+            ) ::
+              {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: map(),
+               Socket.t()}
+              | {:noreply, new_state :: map(), Socket.t()}
 
   @doc """
   The key on assigns to hold application state. Defaults to `:state`.
@@ -64,7 +74,12 @@ defmodule LiveState.Channel do
       end
 
       def handle_info({:after_join, channel, payload}, socket) do
-        {:ok, state} = init(channel, payload, socket)
+        {state, socket} =
+          case init(channel, payload, socket) do
+            {:ok, state, socket} -> {state, socket}
+            {:ok, state} -> {state, socket}
+          end
+
         push_state_change(socket, state, 0)
         {:noreply, socket |> assign(state_key(), state) |> assign(state_version_key(), 0)}
       end
@@ -74,7 +89,7 @@ defmodule LiveState.Channel do
       end
 
       def handle_in("lvs_evt:" <> event_name, payload, %{assigns: assigns} = socket) do
-        handle_event(event_name, payload, Map.get(assigns, state_key()))
+        handle_event(event_name, payload, Map.get(assigns, state_key()), socket)
         |> maybe_handle_reply(socket)
       end
 
@@ -87,6 +102,9 @@ defmodule LiveState.Channel do
       def handle_message(_message, state), do: {:noreply, state}
 
       def handle_event(_message, _payload, state), do: {:noreply, state}
+
+      def handle_event(message, payload, state, _socket),
+        do: handle_event(message, payload, state)
 
       defp update_state(%{assigns: assigns} = socket, new_state) do
         current_state = Map.get(assigns, state_key())
@@ -106,9 +124,17 @@ defmodule LiveState.Channel do
 
       defp maybe_handle_reply({:noreply, new_state}, socket), do: update_state(socket, new_state)
 
+      defp maybe_handle_reply({:noreply, new_state, new_socket}, socket),
+        do: update_state(new_socket, new_state)
+
       defp maybe_handle_reply({:reply, event_or_events, new_state}, socket) do
         push_events(socket, event_or_events)
         update_state(socket, new_state)
+      end
+
+      defp maybe_handle_reply({:reply, event_or_events, new_state, new_socket}, socket) do
+        push_events(new_socket, event_or_events)
+        update_state(new_socket, new_state)
       end
 
       defp push_events(socket, events) when is_list(events) do
@@ -138,6 +164,7 @@ defmodule LiveState.Channel do
                      handle_in: 3,
                      handle_info: 2,
                      handle_event: 3,
+                     handle_event: 4,
                      authorize: 3,
                      join: 3
     end
