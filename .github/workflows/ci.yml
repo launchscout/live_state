@@ -27,9 +27,8 @@ jobs:
       - uses: actions/cache@v1
         name: Cache build
         with:
-          path: _build
+          path: live_state/_build
           key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          path: live_state
       - name: Install dependencies
         run: mix deps.get
         working-directory: live_state
