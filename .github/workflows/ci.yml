@@ -32,12 +32,12 @@ jobs:
       - name: Run tests
         run: mix test
         working-directory: live_state
-      - name: npm install live-state
+      - name: npm install phx-live-state
         run: npm install
-        working-directory: live-state
-      - name: build live-state
+        working-directory: phx-live-state
+      - name: build phx-live-state
         run: npm run build
-        working-directory: live-state
+        working-directory: phx-live-state
       - name: Install testbed dependencies
         run: mix deps.get
         working-directory: livestate_testbed
