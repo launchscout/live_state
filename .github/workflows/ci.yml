@@ -40,13 +40,13 @@ jobs:
         working-directory: phx-live-state
       - name: Install testbed dependencies
         run: mix deps.get
-        working-directory: livestate_testbed
+        working-directory: testbed
       - name: npm install testbed assets
         run: npm install
-        working-directory: livestate_testbed/assets
+        working-directory: testbed/assets
       - name: build testbed javascript
         run: npm run build
-        working-directory: livestate_testbed/assets
+        working-directory: testbed/assets
       - name: Run testbed tests
         run: mix test
-        working-directory: livestate_testbed
+        working-directory: testbed
