@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main,monorep]
 
 jobs:
   test:
@@ -10,9 +10,8 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          path: live_state
+      - name: Checkout project
+        uses: actions/checkout@v3
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
@@ -35,22 +34,12 @@ jobs:
       - name: Run tests
         run: mix test
         working-directory: live_state
-      - name: Checkout phx-live-state
-        uses: actions/checkout@v3
-        with:
-          path: live-state
-          repository: launchscout/live-state
       - name: npm install live-state
         run: npm install
         working-directory: live-state
       - name: build live-state
         run: npm run build
         working-directory: live-state
-      - name: Checkout testbed
-        uses: actions/checkout@v3
-        with:
-          path: livestate_testbed
-          repository: launchscout/live_state_testbed
       - name: Install testbed dependencies
         run: mix deps.get
         working-directory: livestate_testbed
