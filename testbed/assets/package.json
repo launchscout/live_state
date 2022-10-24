@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "lit": "^2.4.0",
+    "phx-live-state": "file:../../phx-live-state"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.4",
+    "vite": "^3.0.0"
+  }
+}
