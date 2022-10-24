@@ -62,7 +62,10 @@ The decorator expects to passed an object with the following properties, all of 
 are optional:
 * url (defaults to `this.url` if not passed)
 * channelName (defaults to `this.channelName` if not passed)
-* shared - pass true to use shared `LiveState` instance on `window.__liveState`. Will create and set if not found
+* provide - share this LiveState instance as a context (see below)
+  * scope
+  * 
+* context - connect to an existing LiveState instance (see below)
 * properties - passed into `connectElement`
 * events - passed into `connectElement`
 
@@ -75,6 +78,37 @@ are optional:
   }
 })
 ```
+
+### Context
+
+As of 0.7.0, we now support sharing LiveState instances via a context. The way this works is that one element will provide an instance like so:
+
+```typescript
+@liveState({
+  channelName: "todo:all",
+  properties: ['todos'],
+  events: {
+    send: ['add_todo']
+  },
+  provide: {
+    scope: window,
+    name: 'todoLiveState'
+  }
+})
+```
+
+This will cause the LiveState instance to be set on the `window` as `todoLiveState`. An element that wishes to connect to an existing LiveState instance uses the context property:
+
+```typescript
+@liveState({
+  events: {
+    send: ['add_todo']
+  },
+  context: 'todoLiveState'
+})
+```
+
+This will find an instance with the specified name (in any scope). This will be handled regardless of order, if the consuming instance is created first a queue of consumers will be created that will be resolved and attached when the providing instance is created.
 
 ## Example
 
