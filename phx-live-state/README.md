@@ -5,7 +5,7 @@ a server running [LiveState](https://github.com/gaslight/live_state) and sends e
 
 ## Version compatibility
 
-This version, 0.5.0, requires version 0.5.0 of later of the `live_state` elixir library 
+This version, 0.7.0, requires version 0.5.0 of later of the `live_state` elixir library 
 due to the addition of version tracking for state.
 
 ## Installation
@@ -64,7 +64,7 @@ are optional:
 * channelName (defaults to `this.channelName` if not passed)
 * provide - share this LiveState instance as a context (see below)
   * scope
-  * 
+  * name
 * context - connect to an existing LiveState instance (see below)
 * properties - passed into `connectElement`
 * events - passed into `connectElement`
