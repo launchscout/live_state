@@ -18,11 +18,9 @@ const connectToLiveState = (element: any, options: LiveStateDecoratorOptions) =>
     const liveState = scope[name] ? scope[name] :
       scope[name] = buildLiveState(element, options);
     registerContext(scope, name, liveState)
-    element.liveState = liveState;
     connectElement(liveState, element, options as any);
   } else if (options.context) {
     observeContext(element, options.context, element, (element, liveState) => {
-      element.liveState = liveState;
       connectElement(liveState, element, options as any);
     });
   } else {
@@ -44,6 +42,7 @@ const liveState = (options: LiveStateDecoratorOptions) => {
     }
     const superDisconnected = targetClass.prototype.disconnectedCallback;
     targetClass.prototype.disconnectedCallback = function () {
+      console.log('disconnecting...');
       superDisconnected.apply(this)
       this.liveState && this.liveState.disconnect();
     }

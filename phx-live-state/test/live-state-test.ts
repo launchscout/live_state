@@ -168,9 +168,30 @@ describe('LiveState', () => {
         }
       });
       el.dispatchEvent(new CustomEvent('sayHi', { detail: { greeting: 'wazzaap' } }));
+      expect(liveState.channel.push.callCount).to.equal(1);
       const pushCall = liveState.channel.push.getCall(0);
       expect(pushCall.args[0]).to.equal('lvs_evt:sayHi');
       expect(pushCall.args[1]).to.deep.equal({ greeting: 'wazzaap' });
+    });
+
+    it('connects idempotently', async () => {
+      const el: TestElement = await fixture('<test-element></test-element>');
+      connectElement(liveState, el, {
+        properties: ['bar'],
+        attributes: ['foo'],
+        events: {
+          send: ['sayHi']
+        }
+      });
+      connectElement(liveState, el, {
+        properties: ['bar'],
+        attributes: ['foo'],
+        events: {
+          send: ['sayHi']
+        }
+      });
+      el.dispatchEvent(new CustomEvent('sayHi', { detail: { greeting: 'wazzaap' } }));
+      expect(liveState.channel.push.callCount).to.equal(1);
     });
 
     it('receives events', async () => {
