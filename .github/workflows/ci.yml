@@ -29,11 +29,14 @@ jobs:
       - name: Install dependencies
         run: mix deps.get
         working-directory: live_state
-      - name: Run tests
+      - name: Run live_state elixir tests
         run: mix test
         working-directory: live_state
       - name: npm install phx-live-state
         run: npm install
+        working-directory: phx-live-state
+      - name: Run phx-live-state tests
+        run: npm test
         working-directory: phx-live-state
       - name: build phx-live-state
         run: npm run build
@@ -47,6 +50,6 @@ jobs:
       - name: build testbed javascript
         run: npm run build
         working-directory: testbed/assets
-      - name: Run testbed tests
+      - name: Run testbed integration tests
         run: mix test
         working-directory: testbed
