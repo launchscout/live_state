@@ -15,6 +15,7 @@ config :livestate_testbed, LivestateTestbedWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "Qto/T3aMGBUEg3SmlaYWHIRI4Cp0DNyftdio07/XvzQZsDKrgnBkbYGY7dLqmdiw",
   watchers: [
+    node: ["node_modules/vite/bin/vite.js", "build", "--watch", cd: "assets"]
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
     # esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
   ]
