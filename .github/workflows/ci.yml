@@ -41,6 +41,12 @@ jobs:
       - name: build phx-live-state
         run: npm run build
         working-directory: phx-live-state
+      - name: npm install use-live-state
+        run: npm install
+        working-directory: use-live-state
+      - name: build use-live-state
+        run: npm run build
+        working-directory: use-live-state
       - name: Install testbed dependencies
         run: mix deps.get
         working-directory: testbed
