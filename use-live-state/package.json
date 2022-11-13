@@ -28,7 +28,7 @@
     "react": ">= 16.8.0"
   },
   "dependencies": {
-    "phx-live-state": ">= 0.7.0"
+    "phx-live-state": ">= 0.7.1"
   },
   "devDependencies": {
     "typescript": "^4.8.4",
