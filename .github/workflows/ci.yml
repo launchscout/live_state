@@ -44,15 +44,15 @@ jobs:
       - name: npm install use-live-state
         run: npm install
         working-directory: use-live-state
-      - name: build use-live-state
-        run: npm run build
-        working-directory: use-live-state
       - name: Install testbed dependencies
         run: mix deps.get
         working-directory: testbed
       - name: npm install testbed assets
         run: npm install
         working-directory: testbed/assets
+      - name: build use-live-state
+        run: npm run build
+        working-directory: use-live-state
       - name: build testbed javascript
         run: mix esbuild default
         working-directory: testbed
