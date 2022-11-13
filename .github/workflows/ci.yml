@@ -49,7 +49,7 @@ jobs:
         working-directory: testbed/assets
       - name: build testbed javascript
         run: mix esbuild default
-        working-directory: testbed/assets
+        working-directory: testbed
       - name: Run testbed integration tests
         run: mix test
         working-directory: testbed
