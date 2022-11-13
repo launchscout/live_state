@@ -1,0 +1,37 @@
+{
+  "name": "use-live-state",
+  "version": "0.0.1",
+  "description": "A react hook for LiveState",
+  "module": "build/useLiveState.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/launchscout/live_state.git"
+  },
+  "keywords": [
+    "elixir",
+    "typescript",
+    "react",
+    "phoenix",
+    "LiveState"
+  ],
+  "author": "Chris Nelson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/launchscout/live_state/issues"
+  },
+  "homepage": "https://github.com/launchscout/live_state#readme",
+  "peerDependencies": {
+    "react": ">= 16.8.0"
+  },
+  "dependencies": {
+    "phx-live-state": ">= 0.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "react": "file:../testbed/assets/node_modules/react"
+  }
+}

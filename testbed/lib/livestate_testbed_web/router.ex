@@ -18,6 +18,7 @@ defmodule LivestateTestbedWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/react", PageController, :react
   end
 
   # Other scopes may use custom stacks.

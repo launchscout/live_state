@@ -5,7 +5,10 @@ import Config
 config :livestate_testbed, LivestateTestbedWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "jlDiNffMPYHH4hnx9xGQkL21UgZxdP1KThYX1gVVkQzb7lqiXzagtormu9/ucuZ0",
-  server: false
+  server: true,
+  watchers: [
+    # node: ["node_modules/vite/bin/vite.js", "build", "--watch", cd: "assets"]
+  ]
 
 # In test we don't send emails.
 config :livestate_testbed, LivestateTestbed.Mailer,
@@ -23,6 +26,3 @@ config :wallaby,
   # chromedriver: [
   #   headless: false
   # ]
-
-config :livestate_testbed, LivestateTestbedWeb.Endpoint,
-  server: true

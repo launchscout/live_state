@@ -4,6 +4,8 @@ _build/
 # If you run "mix test --cover", coverage assets end up here.
 /cover/
 
+node_modules
+
 # The directory Mix downloads your dependencies sources to.
 deps
 

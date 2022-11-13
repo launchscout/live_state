@@ -11,4 +11,8 @@ defmodule LivestateTestbedWeb.PageController do
     |> assign(:url, url)
     |> render("index.html")
   end
+
+  def react(conn, _params) do
+    conn |> render("react.html")
+  end
 end

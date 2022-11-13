@@ -18,4 +18,12 @@ defmodule LivestateTestbedWeb.Features.TodoListTest do
       |> assert_has(css("li", text: "Do a thing"))
     end)
   end
+
+  feature "react todo list", %{session: session} do
+    session
+    |> visit("/react")
+    |> fill_in(css("input[name='todo']"), with: "Do a thing")
+    |> click(css("button"))
+    |> assert_has(css("li", text: "Do a thing"))
+  end
 end
