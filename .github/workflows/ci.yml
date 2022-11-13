@@ -48,7 +48,7 @@ jobs:
         run: npm install
         working-directory: testbed/assets
       - name: build testbed javascript
-        run: npm run build
+        run: mix esbuild default
         working-directory: testbed/assets
       - name: Run testbed integration tests
         run: mix test
