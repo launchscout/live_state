@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/launchscout/live_state/issues"
   },
-  "homepage": "https://github.com/launchscout/live_state#readme",
+  "homepage": "https://github.com/launchscout/live_state/tree/main/use-live-state#readme",
   "peerDependencies": {
     "react": ">= 16.8.0"
   },

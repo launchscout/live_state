@@ -11,6 +11,10 @@ This is the Elixir library to power to backend of a LiveState project. It consis
 
 The front end library npm package that allows for elements to send and receive events, and subscribe to state changes.
 
+## [use-live-state](use-live-state)
+
+A react hook for LiveState.
+
 ## [testbed](testbed)
 
 This is a phoenix project that mainly provides integration tests for LiveState.
