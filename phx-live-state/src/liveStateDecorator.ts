@@ -30,7 +30,7 @@ const connectToLiveState = (element: any, options: LiveStateDecoratorOptions) =>
 }
 
 const buildLiveState = (element: any, options: LiveStateDecoratorOptions) => {
-  return new LiveState(options.url || element.url, options.channelName || element.channelName);
+  return new LiveState({url: options.url || element.url, topic: options.channelName || element.channelName});
 }
 
 const liveState = (options: LiveStateDecoratorOptions) => {
