@@ -8,6 +8,7 @@ import { TodoForm } from './TodoForm';
 window.addEventListener('DOMContentLoaded', (event) => {
   const reactContainer = document.getElementById('react-root');
   if (reactContainer) {
+    window['liveState'] = new LiveState({url: 'ws://localhost:4002/socket', topic: 'todo:all'});
     const root = createRoot(reactContainer);
     root.render(
       <>

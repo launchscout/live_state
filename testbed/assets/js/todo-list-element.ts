@@ -1,6 +1,6 @@
 import { html, css, LitElement } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import { liveState } from 'phx-live-state';
+import { liveState, liveStateConfig } from 'phx-live-state';
 
 /**
  * An example element.
@@ -10,7 +10,7 @@ import { liveState } from 'phx-live-state';
  */
 @customElement('todo-list')
 @liveState({
-  channelName: "todo:all",
+  topic: "todo:all",
   properties: ['todos'],
   events: {
     send: ['add_todo']
@@ -28,6 +28,7 @@ export class TodoListElement extends LitElement {
   todos: Array<string> | undefined;
 
   @property()
+  @liveStateConfig('url')
   url: string = "foo";
   
   render() {

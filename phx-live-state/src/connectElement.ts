@@ -7,12 +7,11 @@ export type ConnectOptions = {
     send?: Array<string>,
     receive?: Array<string>
   },
-  connectParams?: object
 }
 
-const connectElement = (liveState: LiveState, el: HTMLElement, { properties, attributes, events, connectParams }: ConnectOptions) => {
+const connectElement = (liveState: LiveState, el: HTMLElement, { properties, attributes, events }: ConnectOptions) => {
   if (el['liveState'] !== liveState) {
-    liveState.connect(connectParams);
+    liveState.connect();
     liveState.subscribe((state: any) => {
       properties?.forEach((prop) => {
         el[prop] = state[prop];

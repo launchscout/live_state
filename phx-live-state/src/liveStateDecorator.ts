@@ -1,16 +1,17 @@
 import connectElement, { ConnectOptions } from "./connectElement";
-import LiveState from "./live-state";
+import LiveState, { LiveStateConfig } from "./live-state";
 import { registerContext, observeContext } from 'wc-context';
+import 'reflect-metadata';
 
 export type LiveStateDecoratorOptions = {
   channelName?: string,
-  url?: string,
   provide?: {
     scope: object,
     name: string | undefined
   },
   context?: string
-} & ConnectOptions
+} & ConnectOptions & LiveStateConfig
+
 
 const connectToLiveState = (element: any, options: LiveStateDecoratorOptions) => {
   if (options.provide) {
@@ -24,29 +25,61 @@ const connectToLiveState = (element: any, options: LiveStateDecoratorOptions) =>
       connectElement(liveState, element, options as any);
     });
   } else {
-    element.liveState = buildLiveState(element, options)
+    const liveState = buildLiveState(element, options);
+    connectElement(liveState, element, options);
   }
   return element.liveState;
 }
 
-const buildLiveState = (element: any, options: LiveStateDecoratorOptions) => {
-  return new LiveState(options.url || element.url, options.channelName || element.channelName);
+export const extractConfig = (element): LiveStateConfig => {
+  const elementConfig = element._liveStateConfig ?
+    Object.keys(element._liveStateConfig).reduce((config, key) => {
+      if (element._liveStateConfig[key] instanceof Function) {
+        const configFn = element._liveStateConfig[key];
+        config[key] = configFn.apply(element);
+      } else {
+        config[key] = element._liveStateConfig[key];
+      }
+      return config;
+    }, {}) : {}
+  flattenParams(elementConfig);
+  return elementConfig;
 }
 
-const liveState = (options: LiveStateDecoratorOptions) => {
+const flattenParams = (object) => {
+  const params = Object.keys(object).filter((key) => key.startsWith('params.')).reduce((params, key) => {
+    params[key.replace('params.', '')] = object[key];
+    return params;
+  }, {});
+  object.params = params;
+}
+
+export const buildLiveState = (element: any, { url, topic, params }: LiveStateDecoratorOptions) => {
+  const elementConfig = extractConfig(element);
+  const config = Object.assign({ url, topic, params }, elementConfig);
+  return new LiveState(config);
+}
+
+export const liveState = (options: LiveStateDecoratorOptions) => {
   return (targetClass: Function) => {
+    Reflect.defineMetadata('liveStateConfig', options, targetClass);
     const superConnected = targetClass.prototype.connectedCallback;
     targetClass.prototype.connectedCallback = function () {
-      superConnected.apply(this);
+      superConnected?.apply(this);
       connectToLiveState(this, options);
     }
     const superDisconnected = targetClass.prototype.disconnectedCallback;
     targetClass.prototype.disconnectedCallback = function () {
-      console.log('disconnecting...');
-      superDisconnected.apply(this)
+      superDisconnected?.apply(this)
       this.liveState && this.liveState.disconnect();
     }
   }
 }
 
+export const liveStateConfig = (configProperty) => {
+  return (proto, propertyName) => {
+    proto._liveStateConfig = proto._liveStateConfig || {};
+    proto._liveStateConfig[configProperty] = function() {return this[propertyName]; }
+  }
+}
 export default liveState;

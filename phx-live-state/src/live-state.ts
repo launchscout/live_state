@@ -1,30 +1,33 @@
 import { applyPatch } from 'json-joy/esm/json-patch';
 import { Socket, Channel } from "phoenix";
 
-export { LiveStateController } from "./livestate-controller";
-
+export type LiveStateConfig = {
+  url?: string,
+  topic?: string,
+  params?: object
+}
 
 export class LiveState {
 
   subscribers: Array<Function> = [];
 
+  config: LiveStateConfig;
   channel: Channel;
   socket: Socket;
-  channelName: string;
   state: any;
   stateVersion: number;
   connected: boolean = false;
 
-  constructor(url, channelName) {
-    console.log(`connecting liveState to ${url} from ${this.constructor.name}`);
-    this.channelName = channelName;
-    this.socket = new Socket(url, { logger: ((kind, msg, data) => { console.log(`${kind}: ${msg}`, data) }) });
+  constructor(config: LiveStateConfig) {
+    this.config = config;
+    console.log(`connecting liveState to ${this.config.url} from ${this.constructor.name}`);
+    this.socket = new Socket(this.config.url, { logger: ((kind, msg, data) => { console.log(`${kind}: ${msg}`, data) }) });
   }
 
-  connect(params) {
+  connect(params?) {
     if (!this.connected) {
       this.socket.connect();
-      this.channel = this.socket.channel(this.channelName, params);
+      this.channel = this.socket.channel(this.config.topic, params || this.config.params);
       this.channel.join().receive("ok", () => {
         console.log('joined');
       });
