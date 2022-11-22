@@ -1,5 +1,5 @@
 import LiveState from "./live-state";
 import connectElement from "./connectElement";
-import liveState from "./liveStateDecorator";
-export { connectElement, liveState }
+import liveState, { liveStateConfig } from "./liveStateDecorator";
+export { connectElement, liveState, liveStateConfig }
 export default LiveState

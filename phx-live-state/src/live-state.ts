@@ -1,12 +1,12 @@
 import { applyPatch } from 'json-joy/esm/json-patch';
 import { Socket, Channel } from "phoenix";
 
-type LiveStateConfig = {
+export type LiveStateConfig = {
   url?: string,
   topic?: string,
-  subscribers?: Array<Function>,
   params?: object
 }
+
 export class LiveState {
 
   subscribers: Array<Function> = [];
