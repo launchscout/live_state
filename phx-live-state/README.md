@@ -18,16 +18,17 @@ npm install phx-live-state
 
 ## LiveState
 
-This established the connection with a LiveState server. The constructor takes two arguments:
+This established the connection with a LiveState server. The constructor takes a config object containing the following properties:
 
 * url
-* channel name
+* topic
+* params (passed in during channel join)
 
 It is the default export from LiveState
 
 ```javascript
 import LiveState from 'phx-live-state';
-const liveState = new LiveState('ws://localhost:4000', 'channelName');
+const liveState = new LiveState({url: 'ws://localhost:4000', topic: 'topicName'});
 ```
 
 ## connectElement
