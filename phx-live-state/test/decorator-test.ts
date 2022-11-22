@@ -10,6 +10,9 @@ class InstanceDecorated {
 
   @liveStateConfig('params.foo')
   yadda: string = 'other stuff';
+
+  @liveStateConfig('url')
+  get theUrl() { return 'bobbida'; }
 }
 
 describe('liveStateConfig', () => {
@@ -17,6 +20,7 @@ describe('liveStateConfig', () => {
     const instanceDecorated = new InstanceDecorated();
     const config = extractConfig(instanceDecorated);
     expect(config.topic).to.eql('stuff');
+    expect(config.url).to.eql('bobbida');
     expect(config.params['foo']).to.eql('other stuff'); 
   });
 });

@@ -45,7 +45,8 @@ This is a function designed to connect an HTML Element with livestate and takes 
 The options object allows the following properties:
 
 * properties - A list of properties managed by LiveState. These will be updated any time a state property of the same name changes.
-* attributes 
+* attributes
+* params - an object which will be passed as parameters when joining the channel
 * events - A list of attributes managed by LiveState. These will be updated any time a state property of the same name changes.
   * send - events to listen to on the element and send to the LiveState server. They are expected to be CustomEvents with a detail, which will be sent as the payload
   * receive - events that can be pushed from the LiveState server and will then be dispatched as a CustomEvent of the same name on the element
@@ -60,8 +61,9 @@ Both will call inherited callbacks.
 
 The decorator expects to passed an object with the following properties, all of which
 are optional:
-* url (defaults to `this.url` if not passed)
-* channelName (defaults to `this.channelName` if not passed)
+* url
+* topic
+* params
 * provide - share this LiveState instance as a context (see below)
   * scope
   * name
@@ -71,13 +73,36 @@ are optional:
 
 ```typescript
 @liveState({
-  channelName: 'discord_chat:new',
+  url: 'http://foo.bar',
+  topic: 'discord_chat:new',
   properties: ['messages'],
   events: {
     send: ['new_message', 'start_chat']
   }
 })
 ```
+
+## `liveStateConfig`
+
+This decorator, introduced in version 0.8.0, adds the ability to have live state config properties be contributed by the element instance. They will override values from the `liveState` decorator on the class, if used. 
+
+Example:
+
+```typescript
+@customElement('join-params')
+@liveState({topic: 'join_params', properties: ['result']})
+export class JoinParamsElement extends LitElement {
+  
+  @property({attribute: 'the-url'})
+  @liveStateConfig('url')
+  theUrl: string = "foo";
+  
+  @property({attribute: 'api-key'})
+  @liveStateConfig('params.api_key')
+  apiKey: string = '';
+```
+
+This will cause the `the-url` attribute of the element to be used as the url to connect to, and the `api-key` attribute to be passed as an `api_key` parameter to the channel join.
 
 ### Context
 

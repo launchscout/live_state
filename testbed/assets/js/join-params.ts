@@ -12,10 +12,6 @@ import { liveState, liveStateConfig } from 'phx-live-state';
 @liveState({topic: 'join_params', properties: ['result']})
 export class JoinParamsElement extends LitElement {
   
-  @property()
-  // @liveStateProperty()
-  result: string = '';
-
   @property({attribute: 'the-url'})
   @liveStateConfig('url')
   theUrl: string = "foo";
@@ -24,10 +20,10 @@ export class JoinParamsElement extends LitElement {
   @liveStateConfig('params.api_key')
   apiKey: string = '';
 
-  // @liveStateTopic()
   @property()
-  topic: string = 'join_params';
-  
+  // @liveStateProperty()
+  result: string = '';
+
   render() {
     return html`
       <div>
