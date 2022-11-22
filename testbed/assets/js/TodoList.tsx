@@ -1,12 +1,11 @@
 import { state } from 'lit/decorators';
 import React, { Component } from 'react';
-import { liveState } from './live_state_react';
 import useLiveState from 'use-live-state';
 
 
 export const TodoList = () => {
 
-  const [state, pushEvent] = useLiveState(liveState, {});
+  const [state, pushEvent] = useLiveState(window['liveState'], {});
 
   return (
     <ul>

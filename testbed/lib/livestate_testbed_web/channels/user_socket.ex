@@ -9,6 +9,7 @@ defmodule LivestateTestbedWeb.UserSocket do
   ## Channels
 
   channel "todo:*", LivestateTestbedWeb.TodoChannel
+  channel "join_params", LivestateTestbedWeb.JoinParamsChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

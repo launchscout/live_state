@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 const useLiveState = (liveState: LiveState, intialState: any) => {
   const [state, setState] = useState(intialState);
   useEffect(() => {
-    liveState.connect({});
+    liveState.connect();
     const subscription = liveState.subscribe((state) => setState(state));
     return () => {
       liveState.unsubscribe(subscription);
