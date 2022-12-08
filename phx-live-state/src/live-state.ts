@@ -10,6 +10,7 @@ export type LiveStateConfig = {
 export class LiveState {
 
   subscribers: Array<Function> = [];
+  errorSubscribers: Array<Function> = [];
 
   config: LiveStateConfig;
   channel: Channel;
@@ -20,16 +21,19 @@ export class LiveState {
 
   constructor(config: LiveStateConfig) {
     this.config = config;
-    console.log(`connecting liveState to ${this.config.url} from ${this.constructor.name}`);
     this.socket = new Socket(this.config.url, { logger: ((kind, msg, data) => { console.log(`${kind}: ${msg}`, data) }) });
   }
 
   connect(params?) {
     if (!this.connected) {
+      this.socket.onError((e) => this.notifyErrorSubscribers('socket error', e));
       this.socket.connect();
       this.channel = this.socket.channel(this.config.topic, params || this.config.params);
+      this.channel.onError((e) => console.log('channel error', e));
       this.channel.join().receive("ok", () => {
         console.log('joined');
+      }).receive('error', (e) => {
+        this.notifyErrorSubscribers('channel join error', e)
       });
       this.channel.on("state:change", (state) => this.handleChange(state));
       this.channel.on("state:patch", (patch) => this.handlePatch(patch));
@@ -44,6 +48,10 @@ export class LiveState {
 
   subscribe(subscriber: Function) {
     this.subscribers.push(subscriber);
+  }
+
+  subscribeError(errorListener: Function) {
+    this.errorSubscribers.push(errorListener);
   }
 
   unsubscribe(subscriber) {
@@ -69,6 +77,10 @@ export class LiveState {
 
   notifySubscribers(state) {
     this.subscribers.forEach((subscriber) => subscriber(state));
+  }
+
+  notifyErrorSubscribers(type, error) {
+    this.errorSubscribers.forEach((errorSubscriber) => errorSubscriber(type, error));
   }
 
   pushEvent(eventName, payload) {

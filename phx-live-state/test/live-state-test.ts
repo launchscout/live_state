@@ -10,13 +10,16 @@ import { compare } from "fast-json-patch";
 
 
 describe('LiveState', () => {
-  let socketMock, liveState, stubChannel;
+  let socketMock, liveState, stubChannel, receiveStub;
   beforeEach(() => {
     liveState = new LiveState({url: "wss://foo.com", topic: "stuff"});
     socketMock = sinon.mock(liveState.socket);
+    receiveStub = sinon.stub();
+    receiveStub.withArgs("ok", sinon.match.func).returns({receive: receiveStub});
+
     stubChannel = sinon.createStubInstance(Channel, {
       join: sinon.stub().returns({
-        receive: sinon.stub()
+        receive: receiveStub
       }),
       on: sinon.spy(),
       push: sinon.spy()
@@ -136,5 +139,19 @@ describe('LiveState', () => {
     expect(pushCall.args[1]).to.deep.equal({ foo: 'bar' });
   });
 
+  it('sends errors to subscribers', () => {
+    socketMock.expects('connect').exactly(1);
+    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
+    liveState.connect();
+    const errorHandler = receiveStub.getCall(1).args[1];
+    let errorType, source;
+    liveState.subscribeError((type, error) => {
+      errorType = type;
+      source = error;
+    });
+    errorHandler({reason: 'unmatched topic'});
+    expect(errorType).to.equal('channel join error');
+    expect(source.reason).to.equal('unmatched topic');
+  });
 
 });
