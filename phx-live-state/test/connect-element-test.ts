@@ -12,19 +12,28 @@ class TestElement extends LitElement {
   @property() foo: string;
   @state() bar: string;
 
+  constructor() {
+    super();
+    this.addEventListener('livestate:error', (e: CustomEvent) => {
+      this.foo = (e.detail as any).type;
+      this.bar = (e.detail as any).source.type;
+    })
+  }
   render() {
     return html`<div>${this.foo} ${this.bar}</div>`
   }
 }
 
 describe('connectElement', () => {
-  let socketMock, liveState, stubChannel;
+  let socketMock, liveState, stubChannel, receiveStub;
   beforeEach(() => {
     liveState = new LiveState({url: "wss://foo.com", topic: "stuff"});
     socketMock = sinon.mock(liveState.socket);
+    receiveStub = sinon.stub();
+    receiveStub.withArgs("ok", sinon.match.func).returns({receive: receiveStub});
     stubChannel = sinon.createStubInstance(Channel, {
       join: sinon.stub().returns({
-        receive: sinon.stub()
+        receive: receiveStub
       }),
       on: sinon.spy(),
       push: sinon.spy()
@@ -104,5 +113,22 @@ describe('connectElement', () => {
     el.addEventListener('sayHiBack', ({ detail }: CustomEvent) => { eventDetail = detail });
     onHandler({ foo: 'bar' })
     expect(eventDetail).to.deep.equal({ foo: 'bar' });
+  });
+
+  it('receives errors', async () => {
+    const el: TestElement = await fixture('<test-element></test-element>');
+    connectElement(liveState, el, {
+      properties: ['bar'],
+      attributes: ['foo'],
+      events: {
+        send: ['sayHi'],
+        receive: ['sayHiBack']
+      }
+    });
+    const errorHandler = receiveStub.getCall(1).args[1];
+    errorHandler(new Event('WebSocket', {}));
+    await el.updateComplete;
+    expect(el.shadowRoot.innerHTML).to.contain('join error');
+    expect(el.shadowRoot.innerHTML).to.contain('WebSocket');
   });
 });

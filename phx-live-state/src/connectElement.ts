@@ -6,7 +6,7 @@ export type ConnectOptions = {
   events?: {
     send?: Array<string>,
     receive?: Array<string>
-  },
+  }
 }
 
 const connectElement = (liveState: LiveState, el: HTMLElement, { properties, attributes, events }: ConnectOptions) => {
@@ -31,6 +31,9 @@ const connectElement = (liveState: LiveState, el: HTMLElement, { properties, att
       liveState.channel.on(eventName, (event) => {
         el.dispatchEvent(new CustomEvent(eventName, { detail: event }));
       });
+    });
+    liveState.subscribeError((type, error) => {
+      el.dispatchEvent(new CustomEvent('livestate:error', {detail: {type, source: error}}));
     });
     el['liveState'] = liveState;
   }
