@@ -5,8 +5,8 @@ To run the testbed application run the following commands from the `live_state/t
   * Install Livestate testbed elixir dependencies with `mix deps.get`
   * Install Livestate testbed javascript dependencies with `npm install --prefix assets`
 
-  * Install dependencies for phx-live-state and build  `cd ../phx-live-state/ && npm install && npm run build && cd -`
-  * Install dependencies for use-live-state and build  `cd ../use-live-state/ && npm install && npm run build && cd -`
+  * Install dependencies for phx-live-state and build with  `npm run setup --prefix ../phx-live-state`
+  * Install dependencies for use-live-state and build with  `npm run setup --prefix ../use-live-state`
 
   * Build Livestate javascript with `mix esbuild default`
 

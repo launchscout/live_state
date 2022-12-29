@@ -5,7 +5,8 @@
   "module": "build/useLiveState.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "setup": "npm install && npm run build"
   },
   "repository": {
     "type": "git",
