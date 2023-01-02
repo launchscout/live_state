@@ -37,11 +37,7 @@ There are several examples of full LiveState projects. This [blog post](https://
 * https://github.com/launchscout/live_state_comments
 * https://github.com/launchscout/livestate-comments
 
-This talk from ElixirConf 2022 also covers LiveState in detail:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/jLamITBMoVI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-The code examples from the talk are in the repos below:
+[This talk from ElixirConf 2022](https://youtu.be/jLamITBMoVI) also covers LiveState in detail. The code examples from the talk are in the repos below:
 
 * https://github.com/launchscout/discord_element
 * https://github.com/launchscout/discord-element
