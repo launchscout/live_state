@@ -55,7 +55,7 @@ defmodule LiveState.Channel do
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
               | {:noreply, new_state :: term}
 
-  @optional_callbacks handle_event: 4
+  @optional_callbacks handle_event: 4, handle_event: 3
 
   defmacro __using__(opts) do
     quote do
