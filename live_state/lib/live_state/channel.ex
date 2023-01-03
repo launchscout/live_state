@@ -55,6 +55,8 @@ defmodule LiveState.Channel do
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
               | {:noreply, new_state :: term}
 
+  @optional_callbacks handle_event: 4
+
   defmacro __using__(opts) do
     quote do
       use unquote(Keyword.get(opts, :web_module)), :channel
@@ -89,7 +91,13 @@ defmodule LiveState.Channel do
       end
 
       def handle_in("lvs_evt:" <> event_name, payload, %{assigns: assigns} = socket) do
-        handle_event(event_name, payload, Map.get(assigns, state_key()), socket)
+        state = Map.get(assigns, state_key())
+
+        if function_exported?(__MODULE__, :handle_event, 4) do
+          apply(__MODULE__, :handle_event, [event_name, payload, state, socket])
+        else
+          apply(__MODULE__, :handle_event, [event_name, payload, state])
+        end
         |> maybe_handle_reply(socket)
       end
 
@@ -100,11 +108,6 @@ defmodule LiveState.Channel do
       def state_version_key, do: :version
 
       def handle_message(_message, state), do: {:noreply, state}
-
-      def handle_event(_message, _payload, state), do: {:noreply, state}
-
-      def handle_event(message, payload, state, _socket),
-        do: handle_event(message, payload, state)
 
       defp update_state(%{assigns: assigns} = socket, new_state) do
         current_state = Map.get(assigns, state_key())
@@ -163,8 +166,6 @@ defmodule LiveState.Channel do
                      handle_message: 2,
                      handle_in: 3,
                      handle_info: 2,
-                     handle_event: 3,
-                     handle_event: 4,
                      authorize: 3,
                      join: 3
     end
