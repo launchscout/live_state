@@ -12,7 +12,7 @@ export type ConnectOptions = {
 const connectElement = (liveState: LiveState, el: HTMLElement, { properties, attributes, events }: ConnectOptions) => {
   if (el['liveState'] !== liveState) {
     liveState.connect();
-    liveState.subscribe((state: any) => {
+    liveState.addEventListener('livestate-change', ({detail: state}) => {
       properties?.forEach((prop) => {
         el[prop] = state[prop];
       });
@@ -32,7 +32,7 @@ const connectElement = (liveState: LiveState, el: HTMLElement, { properties, att
         el.dispatchEvent(new CustomEvent(eventName, { detail: event }));
       });
     });
-    liveState.subscribeError((type, error) => {
+    liveState.addEventListener('livestate-error', ({detail: {type, error}}) => {
       el.dispatchEvent(new CustomEvent('livestate:error', {detail: {type, source: error}}));
     });
     el['liveState'] = liveState;

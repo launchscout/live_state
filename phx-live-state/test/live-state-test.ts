@@ -54,7 +54,7 @@ describe('LiveState', () => {
     socketMock.expects('channel').exactly(1).withArgs('stuff', { foo: 'bar' }).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = { foo: 'bar' };
-    liveState.subscribe(({ foo }) => state.foo = foo);
+    liveState.subscribe(({ detail: {foo} }) => state.foo = foo);
     expect(liveState.channel.on.callCount).to.equal(2)
     const onArgs = liveState.channel.on.getCall(0).args;
     expect(onArgs[0]).to.equal("state:change");
@@ -73,7 +73,7 @@ describe('LiveState', () => {
     socketMock.expects('channel').exactly(1).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = {};
-    liveState.subscribe((newState) => state = newState);
+    liveState.subscribe(({detail: newState}) => state = newState);
 
     const onChangeArgs = liveState.channel.on.getCall(0).args;
     expect(onChangeArgs[0]).to.equal("state:change");
@@ -96,7 +96,7 @@ describe('LiveState', () => {
     socketMock.expects('channel').exactly(1).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = {};
-    liveState.subscribe((newState) => state = newState);
+    liveState.subscribe(({detail: newState}) => state = newState);
 
     const onChangeArgs = liveState.channel.on.getCall(0).args;
     expect(onChangeArgs[0]).to.equal("state:change");
@@ -145,7 +145,7 @@ describe('LiveState', () => {
     liveState.connect();
     const errorHandler = receiveStub.getCall(1).args[1];
     let errorType, source;
-    liveState.subscribeError((type, error) => {
+    liveState.addEventListener('livestate-error', ({detail: {type, error}}) => {
       errorType = type;
       source = error;
     });
