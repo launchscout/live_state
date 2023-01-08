@@ -49,12 +49,12 @@ describe('LiveState', () => {
     socketMock.verify();
   });
 
-  it('notifies subscribers', () => {
+  it('listens to state changes', () => {
     socketMock.expects('connect').exactly(1);
     socketMock.expects('channel').exactly(1).withArgs('stuff', { foo: 'bar' }).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = { foo: 'bar' };
-    liveState.subscribe(({ detail: {foo} }) => state.foo = foo);
+    liveState.addEventListener('livestate-change', ({ detail: {foo} }) => state.foo = foo);
     expect(liveState.channel.on.callCount).to.equal(2)
     const onArgs = liveState.channel.on.getCall(0).args;
     expect(onArgs[0]).to.equal("state:change");
@@ -119,11 +119,11 @@ describe('LiveState', () => {
     socketMock.verify();
   });
 
-  it('pushes custom events over the channel', () => {
+  it('dispatches custom events over the channel', () => {
     socketMock.expects('connect').exactly(1);
     socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
     liveState.connect();
-    liveState.pushCustomEvent(new CustomEvent('sumpinhappend', { detail: { foo: 'bar' } }));
+    liveState.dispatchEvent(new CustomEvent('sumpinhappend', { detail: { foo: 'bar' } }));
     const pushCall = liveState.channel.push.getCall(0);
     expect(pushCall.args[0]).to.equal('lvs_evt:sumpinhappend');
     expect(pushCall.args[1]).to.deep.equal({ foo: 'bar' });
@@ -153,5 +153,21 @@ describe('LiveState', () => {
     expect(errorType).to.equal('channel join error');
     expect(source.reason).to.equal('unmatched topic');
   });
+
+  it('addEventListenter receives events from channel', async () => {
+    socketMock.expects('connect').exactly(1);
+    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
+    liveState.connect();
+
+    let eventDetail;
+    liveState.addEventListener('sayHiBack', ({ detail }: CustomEvent) => { eventDetail = detail });
+
+    const onArgs = liveState.channel.on.getCall(2).args;
+    expect(onArgs[0]).to.equal("sayHiBack")
+    const onHandler = onArgs[1];
+    onHandler({ foo: 'bar' })
+    expect(eventDetail).to.deep.equal({ foo: 'bar' });
+  });
+
 
 });

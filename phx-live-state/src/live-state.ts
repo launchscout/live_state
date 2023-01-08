@@ -45,7 +45,12 @@ export class LiveState {
   }
 
   addEventListener(type, listener, options?) {
-    return this.eventTarget.addEventListener(type, listener, options);
+    this.eventTarget.addEventListener(type, listener, options);
+    if (!type.startsWith('livestate-')) {
+      this.channel?.on(type, (payload) => {
+        this.eventTarget.dispatchEvent(new CustomEvent(type, {detail: payload}));
+      });      
+    }
   }
 
   removeEventListener(type, listener, options?) {
@@ -87,12 +92,14 @@ export class LiveState {
   }
 
   pushEvent(eventName, payload) {
-    this.channel.push(`lvs_evt:${eventName}`, payload);
+    this.dispatchEvent(new CustomEvent(eventName, {detail: payload}));
   }
 
-  pushCustomEvent(event: CustomEvent) {
+  dispatchEvent(event: CustomEvent) {
     this.channel.push(`lvs_evt:${event.type}`, event.detail);
   }
+
+  pushCustomEvent(event) { this.dispatchEvent(event); }
 }
 
 export default LiveState;

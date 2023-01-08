@@ -1,4 +1,5 @@
 import LiveState from "./live-state";
+import liveState from "./liveStateDecorator";
 
 export type ConnectOptions = {
   properties?: Array<string>;
@@ -21,22 +22,26 @@ const connectElement = (liveState: LiveState, el: HTMLElement, { properties, att
       });
     });
     events?.send?.forEach((eventName) => {
-      el.addEventListener(eventName, (customEvent: CustomEvent) => {
-        console.log(el);
-        console.log(`sending ${eventName}`);
-        liveState.pushCustomEvent(customEvent)
-      });
+      sendEvent(liveState, el, eventName);
     });
     events?.receive?.forEach((eventName) => {
-      liveState.channel.on(eventName, (event) => {
-        el.dispatchEvent(new CustomEvent(eventName, { detail: event }));
-      });
-    });
-    liveState.addEventListener('livestate-error', ({detail: {type, error}}) => {
-      el.dispatchEvent(new CustomEvent('livestate:error', {detail: {type, source: error}}));
+      receiveEvent(liveState, el, eventName);
     });
     el['liveState'] = liveState;
   }
+}
+
+const receiveEvent = (liveState: LiveState, el: HTMLElement, eventName: string) => {
+  liveState.addEventListener(eventName, ({detail}) => {
+    el.dispatchEvent(new CustomEvent(eventName, {detail}));
+  });
+}
+
+const sendEvent = (liveState: LiveState, el: HTMLElement, eventName: string) => {
+  el.addEventListener(eventName, (event) => {
+    const {detail} = event as CustomEvent
+    liveState.dispatchEvent(new CustomEvent(eventName, {detail}));
+  });
 }
 
 export default connectElement;

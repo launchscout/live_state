@@ -14,7 +14,7 @@ export class ConnectErrorElement extends LitElement {
   
   constructor() {
     super();
-    this.addEventListener('livestate:error', (e: CustomEvent<{type: string}>) => {
+    this.addEventListener('livestate-error', (e: CustomEvent<{type: string}>) => {
       this.errorDescription = e.detail.type;
     })
   }
@@ -39,6 +39,6 @@ declare global {
 
 declare global {
   interface HTMLElementEventMap {
-    'livestate:error': CustomEvent<{ type: string, source: object }>;
+    'livestate-error': CustomEvent<{ type: string, source: object }>;
   }
 }

@@ -14,9 +14,9 @@ class TestElement extends LitElement {
 
   constructor() {
     super();
-    this.addEventListener('livestate:error', (e: CustomEvent) => {
+    this.addEventListener('livestate-error', (e: CustomEvent) => {
       this.foo = (e.detail as any).type;
-      this.bar = (e.detail as any).source.type;
+      this.bar = (e.detail as any).source?.type;
     })
   }
   render() {
@@ -122,13 +122,12 @@ describe('connectElement', () => {
       attributes: ['foo'],
       events: {
         send: ['sayHi'],
-        receive: ['sayHiBack']
+        receive: ['sayHiBack', 'livestate-error']
       }
     });
     const errorHandler = receiveStub.getCall(1).args[1];
     errorHandler(new Event('WebSocket', {}));
     await el.updateComplete;
     expect(el.shadowRoot.innerHTML).to.contain('join error');
-    expect(el.shadowRoot.innerHTML).to.contain('WebSocket');
   });
 });
