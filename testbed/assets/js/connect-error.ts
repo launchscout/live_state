@@ -9,7 +9,7 @@ import { liveState, liveStateConfig } from 'phx-live-state';
  * @csspart button - The button
  */
 @customElement('connect-error')
-@liveState({topic: 'garbage', url: 'ws://localhost:4001/socket'})
+@liveState({topic: 'garbage', url: 'ws://localhost:4001/socket', events: {receive: ['livestate-error']}})
 export class ConnectErrorElement extends LitElement {
   
   constructor() {
