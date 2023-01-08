@@ -10,37 +10,39 @@ export type ConnectOptions = {
   }
 }
 
-const connectElement = (liveState: LiveState, el: HTMLElement, { properties, attributes, events }: ConnectOptions) => {
+export const connectElement = (liveState: LiveState, el: HTMLElement, { properties, attributes, events }: ConnectOptions) => {
   if (el['liveState'] !== liveState) {
     liveState.connect();
-    liveState.addEventListener('livestate-change', ({detail: state}) => {
-      properties?.forEach((prop) => {
-        el[prop] = state[prop];
-      });
-      attributes?.forEach((attr) => {
-        el.setAttribute(attr, state[attr]);
-      });
-    });
-    events?.send?.forEach((eventName) => {
-      sendEvent(liveState, el, eventName);
-    });
-    events?.receive?.forEach((eventName) => {
-      receiveEvent(liveState, el, eventName);
-    });
+    properties?.forEach((p) => connectProperty(liveState, el, p));
+    attributes?.forEach((attr) => connectAtttribute(liveState, el, attr));
+    events?.send?.forEach((eventName) => sendEvent(liveState, el, eventName));
+    events?.receive?.forEach((eventName) => receiveEvent(liveState, el, eventName));
     el['liveState'] = liveState;
   }
 }
 
-const receiveEvent = (liveState: LiveState, el: HTMLElement, eventName: string) => {
-  liveState.addEventListener(eventName, ({detail}) => {
-    el.dispatchEvent(new CustomEvent(eventName, {detail}));
+export const connectProperty = (liveState: LiveState, el: HTMLElement, propertyName: string) => {
+  liveState.addEventListener('livestate-change', ({ detail: state }) => {
+    el[propertyName] = state[propertyName];
   });
 }
 
-const sendEvent = (liveState: LiveState, el: HTMLElement, eventName: string) => {
+export const connectAtttribute = (liveState: LiveState, el: HTMLElement, attr: string) => {
+  liveState.addEventListener('livestate-change', ({ detail: state }) => {
+    el.setAttribute(attr, state[attr]);
+  });
+}
+
+export const receiveEvent = (liveState: LiveState, el: HTMLElement, eventName: string) => {
+  liveState.addEventListener(eventName, ({ detail }) => {
+    el.dispatchEvent(new CustomEvent(eventName, { detail }));
+  });
+}
+
+export const sendEvent = (liveState: LiveState, el: HTMLElement, eventName: string) => {
   el.addEventListener(eventName, (event) => {
-    const {detail} = event as CustomEvent
-    liveState.dispatchEvent(new CustomEvent(eventName, {detail}));
+    const { detail } = event as CustomEvent
+    liveState.dispatchEvent(new CustomEvent(eventName, { detail }));
   });
 }
 
