@@ -5,9 +5,10 @@ const useLiveState = (liveState: LiveState, intialState: any) => {
   const [state, setState] = useState(intialState);
   useEffect(() => {
     liveState.connect();
-    const subscription = liveState.subscribe((state) => setState(state));
+    const handleStateChange = ({detail: state}) => setState(state);
+    liveState.addEventListener('livestate-change', handleStateChange);
     return () => {
-      liveState.unsubscribe(subscription);
+      liveState.removeEventListener('livestate-change', handleStateChange);
     };
   });
 

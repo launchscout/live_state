@@ -10,13 +10,16 @@ import { compare } from "fast-json-patch";
 
 
 describe('LiveState', () => {
-  let socketMock, liveState, stubChannel;
+  let socketMock, liveState, stubChannel, receiveStub;
   beforeEach(() => {
     liveState = new LiveState({url: "wss://foo.com", topic: "stuff"});
     socketMock = sinon.mock(liveState.socket);
+    receiveStub = sinon.stub();
+    receiveStub.withArgs("ok", sinon.match.func).returns({receive: receiveStub});
+
     stubChannel = sinon.createStubInstance(Channel, {
       join: sinon.stub().returns({
-        receive: sinon.stub()
+        receive: receiveStub
       }),
       on: sinon.spy(),
       push: sinon.spy()
@@ -46,12 +49,12 @@ describe('LiveState', () => {
     socketMock.verify();
   });
 
-  it('notifies subscribers', () => {
+  it('listens to state changes', () => {
     socketMock.expects('connect').exactly(1);
     socketMock.expects('channel').exactly(1).withArgs('stuff', { foo: 'bar' }).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = { foo: 'bar' };
-    liveState.subscribe(({ foo }) => state.foo = foo);
+    liveState.addEventListener('livestate-change', ({ detail: {foo} }) => state.foo = foo);
     expect(liveState.channel.on.callCount).to.equal(2)
     const onArgs = liveState.channel.on.getCall(0).args;
     expect(onArgs[0]).to.equal("state:change");
@@ -70,7 +73,7 @@ describe('LiveState', () => {
     socketMock.expects('channel').exactly(1).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = {};
-    liveState.subscribe((newState) => state = newState);
+    liveState.subscribe(({detail: newState}) => state = newState);
 
     const onChangeArgs = liveState.channel.on.getCall(0).args;
     expect(onChangeArgs[0]).to.equal("state:change");
@@ -93,7 +96,7 @@ describe('LiveState', () => {
     socketMock.expects('channel').exactly(1).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = {};
-    liveState.subscribe((newState) => state = newState);
+    liveState.subscribe(({detail: newState}) => state = newState);
 
     const onChangeArgs = liveState.channel.on.getCall(0).args;
     expect(onChangeArgs[0]).to.equal("state:change");
@@ -116,11 +119,11 @@ describe('LiveState', () => {
     socketMock.verify();
   });
 
-  it('pushes custom events over the channel', () => {
+  it('dispatches custom events over the channel', () => {
     socketMock.expects('connect').exactly(1);
     socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
     liveState.connect();
-    liveState.pushCustomEvent(new CustomEvent('sumpinhappend', { detail: { foo: 'bar' } }));
+    liveState.dispatchEvent(new CustomEvent('sumpinhappend', { detail: { foo: 'bar' } }));
     const pushCall = liveState.channel.push.getCall(0);
     expect(pushCall.args[0]).to.equal('lvs_evt:sumpinhappend');
     expect(pushCall.args[1]).to.deep.equal({ foo: 'bar' });
@@ -134,6 +137,36 @@ describe('LiveState', () => {
     const pushCall = liveState.channel.push.getCall(0);
     expect(pushCall.args[0]).to.equal('lvs_evt:sumpinhappend');
     expect(pushCall.args[1]).to.deep.equal({ foo: 'bar' });
+  });
+
+  it('sends errors to subscribers', () => {
+    socketMock.expects('connect').exactly(1);
+    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
+    liveState.connect();
+    const errorHandler = receiveStub.getCall(1).args[1];
+    let errorType, source;
+    liveState.addEventListener('livestate-error', ({detail: {type, error}}) => {
+      errorType = type;
+      source = error;
+    });
+    errorHandler({reason: 'unmatched topic'});
+    expect(errorType).to.equal('channel join error');
+    expect(source.reason).to.equal('unmatched topic');
+  });
+
+  it('addEventListenter receives events from channel', async () => {
+    socketMock.expects('connect').exactly(1);
+    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
+    liveState.connect();
+
+    let eventDetail;
+    liveState.addEventListener('sayHiBack', ({ detail }: CustomEvent) => { eventDetail = detail });
+
+    const onArgs = liveState.channel.on.getCall(2).args;
+    expect(onArgs[0]).to.equal("sayHiBack")
+    const onHandler = onArgs[1];
+    onHandler({ foo: 'bar' })
+    expect(eventDetail).to.deep.equal({ foo: 'bar' });
   });
 
 
