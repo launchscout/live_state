@@ -137,13 +137,13 @@ defmodule LiveState.Channel do
         update_state(new_socket, new_state)
       end
 
-      defp push_events(socket, events) when is_list(events) do
+      def push_events(socket, events) when is_list(events) do
         events |> Enum.map(&push_event(socket, &1))
       end
 
-      defp push_events(socket, event), do: push_event(socket, event)
+      def push_events(socket, event), do: push_event(socket, event)
 
-      defp push_event(socket, %Event{name: name, detail: detail}) do
+      def push_event(socket, %Event{name: name, detail: detail}) do
         push(socket, name, detail)
       end
 
