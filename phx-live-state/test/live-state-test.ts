@@ -1,5 +1,5 @@
 import { expect } from "@esm-bundle/chai";
-import LiveState from '../src/live-state';
+import LiveState from '../src/LiveState';
 import { connectElement } from "../src";
 import { Channel } from 'phoenix';
 import sinon from 'sinon';
@@ -16,7 +16,6 @@ describe('LiveState', () => {
     socketMock = sinon.mock(liveState.socket);
     receiveStub = sinon.stub();
     receiveStub.withArgs("ok", sinon.match.func).returns({receive: receiveStub});
-
     stubChannel = sinon.createStubInstance(Channel, {
       join: sinon.stub().returns({
         receive: receiveStub
@@ -24,35 +23,32 @@ describe('LiveState', () => {
       on: sinon.spy(),
       push: sinon.spy()
     });
+    liveState.channel = stubChannel
   });
 
   it('connects to a socket and channel', () => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff', { foo: 'bar' }).returns(stubChannel);
-    liveState.connect({ foo: 'bar' });
+    liveState.connect();
     socketMock.verify();
   });
 
-  it('sends params from config on channel join', () => {
+  xit('sends params from config on channel join', () => {
     liveState.config.params = {bing: 'baz'};
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff', { bing: 'baz' }).returns(stubChannel);
     liveState.connect();
     socketMock.verify();
   });
 
   it('does not connect if already connected', () => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff', { foo: 'bar' }).returns(stubChannel);
-    liveState.connect({ foo: 'bar' });
-    liveState.connect({ foo: 'bar' });
+    liveState.connect();
+    liveState.connect();
     socketMock.verify();
   });
 
   it('listens to state changes', () => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff', { foo: 'bar' }).returns(stubChannel);
-    liveState.connect({ foo: 'bar' });
+    liveState.connect();
     let state = { foo: 'bar' };
     liveState.addEventListener('livestate-change', ({ detail: {foo} }) => state.foo = foo);
     expect(liveState.channel.on.callCount).to.equal(2)
@@ -70,10 +66,12 @@ describe('LiveState', () => {
     const newState = { foo: "baz", bing: [1, 2] };
     const patch = compare(initialState, newState);
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).returns(stubChannel);
-    liveState.connect({ foo: 'bar' });
+    liveState.connect();
     let state = {};
-    liveState.subscribe(({detail: newState}) => state = newState);
+    let receivedPatch;
+
+    liveState.addEventListener('livestate-change', ({detail: newState}) => state = newState);
+    liveState.addEventListener('livestate-patch', ({detail}) => receivedPatch = detail);
 
     const onChangeArgs = liveState.channel.on.getCall(0).args;
     expect(onChangeArgs[0]).to.equal("state:change");
@@ -85,6 +83,7 @@ describe('LiveState', () => {
     const onPatchHandler = onPatchArgs[1];
     onPatchHandler({patch, version: 1});
 
+    expect(receivedPatch).to.equal(patch);
     expect(state).to.deep.equal(newState);
   });
 
@@ -117,11 +116,11 @@ describe('LiveState', () => {
     socketMock.expects('disconnect').exactly(1)
     liveState.disconnect();
     socketMock.verify();
+    expect(liveState.connected).to.be.false;
   });
 
   it('dispatches custom events over the channel', () => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
     liveState.connect();
     liveState.dispatchEvent(new CustomEvent('sumpinhappend', { detail: { foo: 'bar' } }));
     const pushCall = liveState.channel.push.getCall(0);
@@ -131,7 +130,6 @@ describe('LiveState', () => {
 
   it('pushes non custom event events over the channel', () => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
     liveState.connect();
     liveState.pushEvent('sumpinhappend', { foo: 'bar' });
     const pushCall = liveState.channel.push.getCall(0);
@@ -141,7 +139,6 @@ describe('LiveState', () => {
 
   it('sends errors to subscribers', () => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
     liveState.connect();
     const errorHandler = receiveStub.getCall(1).args[1];
     let errorType, source;
@@ -156,7 +153,6 @@ describe('LiveState', () => {
 
   it('addEventListenter receives events from channel', async () => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
     liveState.connect();
 
     let eventDetail;

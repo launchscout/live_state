@@ -1,5 +1,5 @@
 import connectElement, { ConnectOptions } from "./connectElement";
-import LiveState, { LiveStateConfig } from "./live-state";
+import LiveState, { LiveStateConfig } from "./LiveState";
 import { registerContext, observeContext } from 'wc-context';
 import 'reflect-metadata';
 

@@ -7,7 +7,7 @@ export type LiveStateConfig = {
   params?: object
 }
 
-export class LiveState {
+export class LiveState implements EventTarget {
   config: LiveStateConfig;
   channel: Channel;
   socket: Socket;
@@ -19,14 +19,14 @@ export class LiveState {
   constructor(config: LiveStateConfig) {
     this.config = config;
     this.socket = new Socket(this.config.url, { logger: ((kind, msg, data) => { console.log(`${kind}: ${msg}`, data) }) });
+    this.channel = this.socket.channel(this.config.topic, this.config.params);
     this.eventTarget = new EventTarget();
   }
 
-  connect(params?) {
+  connect() {
     if (!this.connected) {
       this.socket.onError((e) => this.emitError('socket error', e));
       this.socket.connect();
-      this.channel = this.socket.channel(this.config.topic, params || this.config.params);
       this.channel.onError((e) => console.log('channel error', e));
       this.channel.join().receive("ok", () => {
         console.log('joined');
@@ -42,6 +42,7 @@ export class LiveState {
   disconnect() {
     this.channel && this.channel.leave();
     this.socket.disconnect();
+    this.connected = false;
   }
 
   addEventListener(type, listener, options?) {
@@ -84,8 +85,8 @@ export class LiveState {
       const { doc, res } = applyPatch(this.state, patch, { mutate: false });
       this.state = doc;
       this.stateVersion = version;
-      this.eventTarget.dispatchEvent(new CustomEvent('livestate-change', {detail: this.state}));
       this.eventTarget.dispatchEvent(new CustomEvent('livestate-patch', {detail: patch}));
+      this.eventTarget.dispatchEvent(new CustomEvent('livestate-change', {detail: this.state}));
     } else {
       this.channel.push('lvs_refresh');
     }
@@ -95,8 +96,9 @@ export class LiveState {
     this.dispatchEvent(new CustomEvent(eventName, {detail: payload}));
   }
 
-  dispatchEvent(event: CustomEvent) {
-    this.channel.push(`lvs_evt:${event.type}`, event.detail);
+  dispatchEvent(event: Event) {
+    this.channel.push(`lvs_evt:${event.type}`, (event as CustomEvent).detail);
+    return true;
   }
 
   pushCustomEvent(event) { this.dispatchEvent(event); }

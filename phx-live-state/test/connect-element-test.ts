@@ -1,7 +1,7 @@
 import { html, LitElement } from "lit";
 import { property, customElement, state } from 'lit/decorators.js';
 import sinon from "sinon";
-import LiveState from "../src/live-state";
+import LiveState from "../src/LiveState";
 import { expect } from "@esm-bundle/chai";
 import {Channel} from 'phoenix';
 import { fixture } from '@open-wc/testing';
@@ -38,11 +38,11 @@ describe('connectElement', () => {
       on: sinon.spy(),
       push: sinon.spy()
     });
+    liveState.channel = stubChannel;
   });
   
   beforeEach(() => {
     socketMock.expects('connect').exactly(1);
-    socketMock.expects('channel').exactly(1).withArgs('stuff').returns(stubChannel);
   });
 
   it('updates on state changes', async () => {

@@ -1,4 +1,4 @@
-import LiveState from "./live-state";
+import LiveState from "./LiveState";
 import liveState from "./liveStateDecorator";
 
 export type ConnectOptions = {
