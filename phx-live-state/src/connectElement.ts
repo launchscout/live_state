@@ -22,13 +22,13 @@ export const connectElement = (liveState: LiveState, el: HTMLElement, { properti
 }
 
 export const connectProperty = (liveState: LiveState, el: HTMLElement, propertyName: string) => {
-  liveState.addEventListener('livestate-change', ({ detail: state }) => {
+  liveState.addEventListener('livestate-change', ({ detail: { state } }) => {
     el[propertyName] = state[propertyName];
   });
 }
 
 export const connectAtttribute = (liveState: LiveState, el: HTMLElement, attr: string) => {
-  liveState.addEventListener('livestate-change', ({ detail: state }) => {
+  liveState.addEventListener('livestate-change', ({ detail: { state } }) => {
     el.setAttribute(attr, state[attr]);
   });
 }

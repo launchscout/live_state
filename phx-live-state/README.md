@@ -14,7 +14,9 @@ due to the addition of version tracking for state.
 npm install phx-live-state
 ```
 
-## Usage
+## Documentation
+
+See [api docs](docs/index.html)
 
 ## LiveState
 

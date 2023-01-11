@@ -50,7 +50,7 @@ describe('LiveState', () => {
     socketMock.expects('connect').exactly(1);
     liveState.connect();
     let state = { foo: 'bar' };
-    liveState.addEventListener('livestate-change', ({ detail: {foo} }) => state.foo = foo);
+    liveState.addEventListener('livestate-change', ({ detail: {state: {foo}} }) => state.foo = foo);
     expect(liveState.channel.on.callCount).to.equal(2)
     const onArgs = liveState.channel.on.getCall(0).args;
     expect(onArgs[0]).to.equal("state:change");
@@ -70,8 +70,8 @@ describe('LiveState', () => {
     let state = {};
     let receivedPatch;
 
-    liveState.addEventListener('livestate-change', ({detail: newState}) => state = newState);
-    liveState.addEventListener('livestate-patch', ({detail}) => receivedPatch = detail);
+    liveState.addEventListener('livestate-change', ({detail: {state: newState}}) => state = newState);
+    liveState.addEventListener('livestate-patch', ({detail: {patch: thePatch}}) => receivedPatch = thePatch);
 
     const onChangeArgs = liveState.channel.on.getCall(0).args;
     expect(onChangeArgs[0]).to.equal("state:change");
@@ -95,7 +95,7 @@ describe('LiveState', () => {
     socketMock.expects('channel').exactly(1).returns(stubChannel);
     liveState.connect({ foo: 'bar' });
     let state = {};
-    liveState.subscribe(({detail: newState}) => state = newState);
+    liveState.subscribe(({detail: {state: newState}}) => state = newState);
 
     const onChangeArgs = liveState.channel.on.getCall(0).args;
     expect(onChangeArgs[0]).to.equal("state:change");
@@ -142,8 +142,8 @@ describe('LiveState', () => {
     liveState.connect();
     const errorHandler = receiveStub.getCall(1).args[1];
     let errorType, source;
-    liveState.addEventListener('livestate-error', ({detail: {type, error}}) => {
-      errorType = type;
+    liveState.addEventListener('livestate-error', ({detail: {kind, error}}) => {
+      errorType = kind;
       source = error;
     });
     errorHandler({reason: 'unmatched topic'});

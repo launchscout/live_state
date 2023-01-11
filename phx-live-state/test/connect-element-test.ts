@@ -15,7 +15,7 @@ class TestElement extends LitElement {
   constructor() {
     super();
     this.addEventListener('livestate-error', (e: CustomEvent) => {
-      this.foo = (e.detail as any).type;
+      this.foo = (e.detail as any).kind;
       this.bar = (e.detail as any).source?.type;
     })
   }

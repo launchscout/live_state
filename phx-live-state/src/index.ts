@@ -1,4 +1,4 @@
-import { LiveState, LiveStateConfig } from "./LiveState";
+import { LiveState, LiveStateConfig, LiveStateError } from "./LiveState";
 import connectElement, { ConnectOptions} from "./connectElement";
 import liveState, { liveStateConfig, LiveStateDecoratorOptions } from "./liveStateDecorator";
 export {
@@ -8,6 +8,7 @@ export {
   LiveState, 
   LiveStateDecoratorOptions, 
   LiveStateConfig,
+  LiveStateError,
   ConnectOptions
 }
 export default LiveState
