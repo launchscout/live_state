@@ -91,15 +91,15 @@ in this codebase for how you can test with the channel helpers from Phoenix.
 
 ## Related projects
 
-## [phx-live-state](phx-live-state)
+## [phx-live-state](https://github.com/launchscout/phx-live-state)
 
 The front end library npm package that implements sending and receiving events, and subscribing to state changes. It also facilitates building Custom Elements that are backed by LiveState.
 
-## [use-live-state](use-live-state)
+## [use-live-state](https://github.com/launchscout/use-live-state)
 
 A react hook for LiveState.
 
-## [testbed](testbed)
+## [live_state_testbed](https://github.com/launchscout/live_state_testbed)
 
 This is a phoenix project that mainly provides integration tests for LiveState.
 
