@@ -28,34 +28,5 @@ jobs:
           key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
       - name: Install dependencies
         run: mix deps.get
-        working-directory: live_state
-      - name: Run live_state elixir tests
+      - name: Run elixir tests
         run: mix test
-        working-directory: live_state
-      - name: npm install phx-live-state
-        run: npm install
-        working-directory: phx-live-state
-      - name: Run phx-live-state tests
-        run: npm test
-        working-directory: phx-live-state
-      - name: build phx-live-state
-        run: npm run build
-        working-directory: phx-live-state
-      - name: npm install use-live-state
-        run: npm install
-        working-directory: use-live-state
-      - name: Install testbed dependencies
-        run: mix deps.get
-        working-directory: testbed
-      - name: npm install testbed assets
-        run: npm install
-        working-directory: testbed/assets
-      - name: build use-live-state
-        run: npm run build
-        working-directory: use-live-state
-      - name: build testbed javascript
-        run: mix esbuild default
-        working-directory: testbed
-      - name: Run testbed integration tests
-        run: mix test
-        working-directory: testbed
