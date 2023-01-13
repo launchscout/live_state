@@ -30,3 +30,9 @@ jobs:
         run: mix deps.get
       - name: Run elixir tests
         run: mix test
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          event-type: run-integration-tests
+          repository: "launchscout/live_state_testbed"
+          token: ${{ secrets.TESTBED_PAT}}
