@@ -23,13 +23,21 @@ defmodule LiveState.Channel do
               {:ok, socket :: Socket.t()} | {:error, binary()}
 
   @doc """
-  Receives an event an payload from the client and current state. Returns the new state along with (optionally)
-  a single or list of `LiveState.Event` to dispatch to client
+  Receives an event an payload from the client and current state. Return a `:reply` tuple if
+  you need to send events to the client, otherwise return `:noreply`. `:reply` tuples
+  can contain a single `LiveState.Event` or a list of events as well as the new state.
   """
   @callback handle_event(event_name :: binary(), payload :: term(), state :: term()) ::
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
               | {:noreply, new_state :: map()}
 
+  @doc """
+  Receive an event name, payload, the current state, and the socket. Use this callback
+  if you need to receive the socket as well as the state. Return a `:reply` tuple if
+  you need to send events to the client, otherwise return `:noreply`.  `:reply` tuples
+  can contain a single `LiveState.Event` or a list of events, as well as the new state and
+  the socket. `:noreply` tuples must contain the new state and and socket.
+  """
   @callback handle_event(
               event_name :: binary(),
               payload :: term(),

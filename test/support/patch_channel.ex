@@ -1,4 +1,6 @@
 defmodule LiveState.Test.PatchChannel do
+  @moduledoc false
+
   use LiveState.Channel, web_module: LiveState.Test.Web, json_patch: true
 
   def init(_channel, _params, _socket) do

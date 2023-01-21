@@ -1,4 +1,6 @@
 defmodule LiveState.Test.SocketyChannel do
+  @moduledoc false
+
   use LiveState.Channel, web_module: LiveState.Test.Web
 
   @impl true

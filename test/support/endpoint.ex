@@ -1,4 +1,6 @@
 defmodule LiveState.Test.Endpoint do
+  @moduledoc false
+
   use Phoenix.Endpoint, otp_app: :live_state
 
   socket "/socket", LiveState.Test.UserSocket

@@ -1,4 +1,6 @@
 defmodule LiveState.Test.AuthorizedChannel do
+  @moduledoc false
+
   use LiveState.Channel, web_module: LiveState.Test.Web
 
   def authorize(_channel, %{"password" => "secret"}, socket) do

@@ -1,4 +1,6 @@
 defmodule LiveState.Test.TodoChannel do
+  @moduledoc false
+
   use LiveState.Channel, web_module: LiveState.Test.Web
   alias LiveState.Event
 

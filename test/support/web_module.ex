@@ -1,4 +1,6 @@
 defmodule LiveState.Test.Web do
+  @moduledoc false
+
   def channel do
     quote do
       use Phoenix.Channel

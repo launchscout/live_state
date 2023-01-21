@@ -1,5 +1,7 @@
 # LiveState
 
+This the elixir library for building servers for LiveState applications. 
+
 ## What is LiveState?
 
 The goal of LiveState is to make building highly interactive web applications easier to build. Currently in most such applications clients send requests and receive responses from and to a server API. This essentially results in two applications, with state being managed in both in an ad hoc way.
@@ -37,19 +39,19 @@ defmodule MyAppWeb.Channel do
 ...
 ```
 
-You'll then want to define your initial state using the `init/3` callback which will be
-called after channel joins and is expected to return the initial state:
+You'll then want to define your initial state using the `c:LiveState.Channel.init/3` callback which will be called after channel joins and is expected to return the initial state:
 
 ```elixir
 def init(_channel, _payload, _socket), do: %{foo: "bar"}
 ```
 
-State will likely be a map, but can be any term. It will be sent down as JSON so anything in it
-must have `Jason.Encoder` implementation.
+State must be a map. It will be sent down as JSON so anything in it
+must have a `Jason.Encoder` implementation.
 
 ## Events
 
-For events emitted from the client, you implement the `handle_event/3` callback. 
+For events emitted from the client, you implement the `c:LiveState.Channel.handle_event/3` callback. If you need access the socket in your event handler, you may implement 
+ `c:LiveState.Channel.handle_event/4`.
 
 ```elixir
   def handle_event("add_todo", todo, %{todos: todos}) do
@@ -57,7 +59,7 @@ For events emitted from the client, you implement the `handle_event/3` callback.
   end
 ```
 
-`handle_event` receives the following arguments
+`c:LiveState.Channel.handle_event/3` receives the following arguments
 
 * event name
 * payload

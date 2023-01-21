@@ -1,4 +1,6 @@
 defmodule LiveState.Test.UserSocket do
+  @moduledoc false
+
   use Phoenix.Socket
 
   # A Socket handler
