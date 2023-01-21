@@ -14,7 +14,7 @@ defmodule LiveState.MixProject do
       description: @description,
       package: [
         licenses: ["MIT"],
-        links: %{"Github" => "https://github.com/gaslight/live_state"}
+        links: %{"Github" => "https://github.com/launchscout/live_state"}
       ],
       docs: [
         main: "readme",
