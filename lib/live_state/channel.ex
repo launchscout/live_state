@@ -11,7 +11,9 @@ defmodule LiveState.Channel do
   Returns the initial application state. Called just after connection
   """
   @callback init(channel :: binary(), payload :: term(), socket :: Socket.t()) ::
-              {:ok, state :: map() | Socket.t()} | {:error, reason :: any()}
+              {:ok, state :: map()}
+              | {:ok, state :: map(), Socket.t()}
+              | {:error, reason :: any()}
 
   @doc """
   Called from join to authorize the connection. Return `{:ok, socket}` to authorize or
@@ -38,6 +40,8 @@ defmodule LiveState.Channel do
                Socket.t()}
               | {:noreply, new_state :: map(), Socket.t()}
 
+  @optional_callbacks handle_event: 4, handle_event: 3
+
   @doc """
   The key on assigns to hold application state. Defaults to `:state`.
   """
@@ -59,6 +63,10 @@ defmodule LiveState.Channel do
     quote do
       use unquote(Keyword.get(opts, :web_module)), :channel
 
+      @dialyzer {:nowarn_function, handle_info: 2}
+      @dialyzer {:nowarn_function, join: 3}
+      @dialyzer {:nowarn_function, update_state: 2}
+
       @behaviour unquote(__MODULE__)
       @json_patch unquote(Keyword.get(opts, :json_patch))
 
@@ -74,14 +82,21 @@ defmodule LiveState.Channel do
       end
 
       def handle_info({:after_join, channel, payload}, socket) do
-        {state, socket} =
-          case init(channel, payload, socket) do
-            {:ok, state, socket} -> {state, socket}
-            {:ok, state} -> {state, socket}
-          end
+        case init(channel, payload, socket) do
+          {:ok, state, socket} ->
+            {:noreply, initialize_state(state, socket)}
 
+          {:ok, state} ->
+            {:noreply, initialize_state(state, socket)}
+
+          {:error, error} ->
+            {:error, error}
+        end
+      end
+
+      defp initialize_state(state, socket) do
         push_state_change(socket, state, 0)
-        {:noreply, socket |> assign(state_key(), state) |> assign(state_version_key(), 0)}
+        socket |> assign(state_key(), state) |> assign(state_version_key(), 0)
       end
 
       def handle_info(message, %{assigns: assigns} = socket) do
@@ -89,7 +104,16 @@ defmodule LiveState.Channel do
       end
 
       def handle_in("lvs_evt:" <> event_name, payload, %{assigns: assigns} = socket) do
-        handle_event(event_name, payload, Map.get(assigns, state_key()), socket)
+        if function_exported?(__MODULE__, :handle_event, 4) do
+          apply(__MODULE__, :handle_event, [
+            event_name,
+            payload,
+            Map.get(assigns, state_key()),
+            socket
+          ])
+        else
+          apply(__MODULE__, :handle_event, [event_name, payload, Map.get(assigns, state_key())])
+        end
         |> maybe_handle_reply(socket)
       end
 
@@ -102,9 +126,6 @@ defmodule LiveState.Channel do
       def handle_message(_message, state), do: {:noreply, state}
 
       def handle_event(_message, _payload, state), do: {:noreply, state}
-
-      def handle_event(message, payload, state, _socket),
-        do: handle_event(message, payload, state)
 
       defp update_state(%{assigns: assigns} = socket, new_state) do
         current_state = Map.get(assigns, state_key())
@@ -164,7 +185,6 @@ defmodule LiveState.Channel do
                      handle_in: 3,
                      handle_info: 2,
                      handle_event: 3,
-                     handle_event: 4,
                      authorize: 3,
                      join: 3
     end
