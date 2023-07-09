@@ -1,6 +1,6 @@
 # LiveState
 
-This the elixir library for building servers for LiveState applications. 
+This the elixir library for building servers for LiveState applications.
 
 ## What is LiveState?
 
@@ -30,8 +30,28 @@ While `cors_plug` is not strictly required, you will very likely want it to be a
 clients cannot connect to your channel.
 
 ## Usage
+First you need to setup a socket as you would with normal other [Phoenix Channels](https://hexdocs.pm/phoenix/channels.html)
 
-You'll want to use the `LiveState.Channel` behaviour in a channel:
+1. On your Endpoint module, setup a socket for your channel:
+```elixir
+defmodule MyAppWeb.Endpoint do
+  socket "/socket", PgLiveHeroWeb.Channels.LiveStateSocket
+...
+```
+2. Then create the socket module with the topic to listen to:
+```elixir
+defmodule MyAppWeb.Socket do
+  use Phoenix.Socket
+
+  channel "topic", MyAppWeb.Channel
+  @impl true
+  def connect(_params, socket), do: {:ok, socket}
+
+  @impl true
+  def id(_), do: "random_id"
+end
+```
+3. Create you channel using the `LiveState.Channel` behaviour:
 
 ```elixir
 defmodule MyAppWeb.Channel do
@@ -39,10 +59,10 @@ defmodule MyAppWeb.Channel do
 ...
 ```
 
-You'll then want to define your initial state using the `c:LiveState.Channel.init/3` callback which will be called after channel joins and is expected to return the initial state:
+4. Then want to define your initial state using the `c:LiveState.Channel.init/3` callback which will be called after channel joins and is expected to return the initial state:
 
 ```elixir
-def init(_channel, _payload, _socket), do: %{foo: "bar"}
+def init(_channel, _payload, _socket), do: {:ok, %{foo: "bar"}}
 ```
 
 State must be a map. It will be sent down as JSON so anything in it
@@ -50,7 +70,7 @@ must have a `Jason.Encoder` implementation.
 
 ## Events
 
-For events emitted from the client, you implement the `c:LiveState.Channel.handle_event/3` callback. If you need access the socket in your event handler, you may implement 
+For events emitted from the client, you implement the `c:LiveState.Channel.handle_event/3` callback. If you need access the socket in your event handler, you may implement
  `c:LiveState.Channel.handle_event/4`.
 
 ```elixir
@@ -63,9 +83,9 @@ For events emitted from the client, you implement the `c:LiveState.Channel.handl
 
 * event name
 * payload
-* current 
+* current
 
-And returns a tuple whose last element is the new state. It can also return 
+And returns a tuple whose last element is the new state. It can also return
 one or many events to dispatch on the calling DOM Element:
 
 ```elixir
