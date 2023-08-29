@@ -5,6 +5,8 @@ defmodule LiveState.JSONPatchTest do
   alias LiveState.Test.PatchChannel
   alias LiveState.Test.UserSocket
 
+  import LiveState.TestHelpers
+
   @endpoint LiveState.Test.Endpoint
 
   setup do
@@ -23,10 +25,19 @@ defmodule LiveState.JSONPatchTest do
   end
 
   test "handle_event", %{socket: socket} do
-    push(socket, "lvs_evt:change_foo", %{"foo" => "not_bar"})
+    send_event(socket, "change_foo", %{"foo" => "not_bar"})
+    push(socket, "lvs_evt:change_foo", )
 
     assert_push("state:patch", %{
       patch: [%{"op" => "replace", "path" => "/foo", "value" => "not_bar"}],
+      version: 1
+    })
+  end
+
+  test "version rollover", %{socket: socket} do
+    Enum.each(0..11, fn i -> push(socket, "lvs_evt:change_foo", %{"foo" => "bar #{i}"}) end)
+    assert_push("state:patch", %{
+      patch: [%{"op" => "replace", "path" => "/foo", "value" => "bar 11"}],
       version: 1
     })
   end

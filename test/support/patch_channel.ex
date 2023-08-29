@@ -1,7 +1,7 @@
 defmodule LiveState.Test.PatchChannel do
   @moduledoc false
 
-  use LiveState.Channel, web_module: LiveState.Test.Web, json_patch: true
+  use LiveState.Channel, web_module: LiveState.Test.Web, json_patch: true, max_version: 10
 
   def init(_channel, _params, _socket) do
     {:ok, %{foo: "bar"}}
