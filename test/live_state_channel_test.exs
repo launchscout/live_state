@@ -5,6 +5,8 @@ defmodule LiveState.LiveStateChannelTest do
   alias LiveState.Test.TodoChannel
   alias LiveState.Test.UserSocket
 
+  import LiveState.TestHelpers
+
   @endpoint LiveState.Test.Endpoint
 
   setup do
@@ -26,12 +28,8 @@ defmodule LiveState.LiveStateChannelTest do
   end
 
   test "handle_event", %{socket: socket} do
-    push(socket, "lvs_evt:add_todo", %{"description" => "Do the thing"})
-
-    assert_push("state:change", %{
-      state: %{todos: [%{"description" => "Do the thing"}]},
-      version: 1
-    })
+    send_event(socket, "add_todo", %{"description" => "Do the thing"})
+    assert_state_change %{todos: [%{"description" => "Do the thing"}]}
   end
 
   test "handle_message" do
