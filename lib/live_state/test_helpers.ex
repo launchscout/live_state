@@ -22,9 +22,9 @@ defmodule LiveState.TestHelpers do
   @doc """
   Asserts that `state:patch` message is received over a channel matching the specified pattern
   """
-  defmacro assert_state_patch(state) do
+  defmacro assert_state_patch(patch) do
     quote do
-      assert_push "state:patch", %{state: unquote(state)}
+      assert_push "state:patch", %{patch: unquote(patch)}
     end
   end
 

@@ -26,12 +26,7 @@ defmodule LiveState.JSONPatchTest do
 
   test "handle_event", %{socket: socket} do
     send_event(socket, "change_foo", %{"foo" => "not_bar"})
-    push(socket, "lvs_evt:change_foo", )
-
-    assert_push("state:patch", %{
-      patch: [%{"op" => "replace", "path" => "/foo", "value" => "not_bar"}],
-      version: 1
-    })
+    assert_state_patch([%{"op" => "replace", "path" => "/foo", "value" => "not_bar"}])
   end
 
   test "version rollover", %{socket: socket} do
