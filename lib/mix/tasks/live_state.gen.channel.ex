@@ -29,22 +29,48 @@ defmodule Mix.Tasks.LiveState.Gen.Channel do
     Mix.Phoenix.check_module_name_availability!(binding[:module] <> "Channel")
 
     channel_contents = EEx.eval_file(Path.join(__DIR__, "../../../templates/channel.ex"), binding)
+    File.mkdir_p!(Path.join(web_prefix, "channels"))
     File.write!(Path.join(web_prefix, "channels/#{binding[:path]}_channel.ex"), channel_contents)
 
-    Mix.shell().info("""
+    live_state_socket_path = Mix.Phoenix.web_path(context_app, "channels/live_state_socket.ex")
 
-        Add the channel to your socket handler, for example:
+    if File.exists?(live_state_socket_path) do
+      Mix.shell().info("""
 
-        channel "#{binding[:singular]}", #{binding[:module]}Channel
-    """)
+      Add the channel to your `#{live_state_socket_path}` handler, for example:
+
+          channel "#{binding[:singular]}:lobby", #{binding[:module]}Channel
+      """)
+    else
+      Mix.shell().info("""
+
+      The default socket handler - #{binding[:web_module]}.LiveStateSocket - was not found.
+      """)
+
+      if Mix.shell().yes?("Do you want to create it?") do
+        Gen.Socket.run(~w(LiveState --from-channel #{channel_name}))
+      else
+        Mix.shell().info("""
+
+        To create it, please run the mix task:
+
+            mix phx.gen.socket LiveState
+
+        Then add the channel to the newly created file, at `#{live_state_socket_path}`:
+
+            channel "#{binding[:singular]}:lobby", #{binding[:module]}Channel
+        """)
+      end
+    end
+
   end
 
   @spec raise_with_help() :: no_return()
   defp raise_with_help do
     Mix.raise("""
-    mix phx.gen.channel expects just the module name, following capitalization:
+    mix live_state.gen.channel expects just the module name, following capitalization:
 
-        mix phx.gen.channel Room
+        mix live_state.gen.channel Todo
 
     """)
   end
@@ -61,7 +87,4 @@ defmodule Mix.Tasks.LiveState.Gen.Channel do
     name =~ ~r/^[A-Z]\w*(\.[A-Z]\w*)*$/
   end
 
-  defp paths do
-    [".", :phoenix]
-  end
 end
