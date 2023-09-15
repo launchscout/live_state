@@ -20,7 +20,7 @@ by adding `live_state` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:live_state, "~> 0.2.0"},
+    {:live_state, "~> 0.7.0"},
     {:cors_plug, "~> 3.0"}
   ]
 end
@@ -101,7 +101,6 @@ one or many events to dispatch on the calling DOM Element:
      ], %{todos: [todo | todos]}}
   end
 ```
-
 
 ## Documentation
 

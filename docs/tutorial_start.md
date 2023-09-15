@@ -32,7 +32,7 @@ entry for it in the `deps` function of mix.exs:
 def deps do
   [
     ...
-    {:live_state, "~> 0.6"},
+    {:live_state, "~> 0.7"},
     {:cors_plug, ">= 0.0.0"}
   ]
 end
@@ -229,3 +229,6 @@ You should be able fill out the form, submit it, and see a helpful thank you mes
 
 There's a lot more we'd probably like to do. We currently don't have any error handling. We've marked all our fields as required so the browser will do some validation for us, but to make things better we we would need to parse errors from changeset and add them to the state on our custom element. We'll tackle that in a future installment.
 
+## I just wanna see the answer...
+
+The completed code for this tutorial is [here](https://github.com/launchscout/pipe_spot).
