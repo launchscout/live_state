@@ -102,14 +102,11 @@ one or many events to dispatch on the calling DOM Element:
   end
 ```
 
-## Testing
-
-We need a test helper to make this a bit easier. Stay tuned! For now you can see the tests
-in this codebase for how you can test with the channel helpers from Phoenix.
 
 ## Documentation
 
-[Docs](https://hexdocs.pm/live_state/) are available in the [hex package](https://hex.pm/packages/live_state).
+* [Tutorial](docs/tutorial_start.md) - A step by step guide to building an embedded app using LiveState
+* [API Docs](https://hexdocs.pm/live_state/) are available in the [hex package](https://hex.pm/packages/live_state).
 
 ## Related projects
 
@@ -125,7 +122,7 @@ A react hook for LiveState.
 
 This is a phoenix project that mainly provides integration tests for LiveState.
 
-## Learning resources
+## Other resources
 
 There are several examples of full LiveState projects. This [blog post](https://launchscout.com/blog/embedded-web-apps-with-livestate) covers building a embeddable comments section custom element. The relevant source code repos:
 
