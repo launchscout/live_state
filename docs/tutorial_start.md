@@ -229,6 +229,12 @@ You should be able fill out the form, submit it, and see a helpful thank you mes
 
 There's a lot more we'd probably like to do. We currently don't have any error handling. We've marked all our fields as required so the browser will do some validation for us, but to make things better we we would need to parse errors from changeset and add them to the state on our custom element. We'll tackle that in a future installment.
 
+There's also some examples of things we didn't get a chance to cover yet in the [live_state_testbed](https://github.com/launchscout/live_state_testbed) project, including:
+
+* Error handling
+* Channel join params
+* Listening to `livestate-change` events
+
 ## I just wanna see the answer...
 
 The completed code for this tutorial is [here](https://github.com/launchscout/pipe_spot).

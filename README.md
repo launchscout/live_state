@@ -119,7 +119,7 @@ A react hook for LiveState.
 
 ## [live_state_testbed](https://github.com/launchscout/live_state_testbed)
 
-This is a phoenix project that mainly provides integration tests for LiveState.
+This is a phoenix project that mainly provides integration tests for LiveState. It's also a great place to see examples of how to use LiveState
 
 ## Other resources
 
