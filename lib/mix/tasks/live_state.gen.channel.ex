@@ -28,7 +28,7 @@ defmodule Mix.Tasks.LiveState.Gen.Channel do
 
     Mix.Phoenix.check_module_name_availability!(binding[:module] <> "Channel")
 
-    channel_contents = EEx.eval_file(Path.join(__DIR__, "../../../templates/channel.ex"), binding)
+    channel_contents = EEx.eval_file(Path.join(__DIR__, "../../../priv/templates/channel.ex"), binding)
     File.mkdir_p!(Path.join(web_prefix, "channels"))
     File.write!(Path.join(web_prefix, "channels/#{binding[:path]}_channel.ex"), channel_contents)
 

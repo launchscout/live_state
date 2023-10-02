@@ -31,7 +31,7 @@ defmodule Mix.Tasks.LiveState.Gen.Element do
     Mix.shell().cmd("npm install --prefix assets lit phx-live-state")
 
     element_contents =
-      EEx.eval_file(Path.join(__DIR__, "../../../templates/custom-element.ts"), binding)
+      EEx.eval_file(Path.join(__DIR__, "../../../priv/templates/custom-element.ts"), binding)
 
     File.write!("assets/js/#{tag_name}.ts", element_contents)
   end

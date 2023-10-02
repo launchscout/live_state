@@ -60,33 +60,6 @@ This will create the basics CRUD functions we need to work with Contacts. Don't 
 
 ## Creating our `<contact-form>`
 
-Now we're ready to start building our contact form custom element. Before we start, we'll want to add an additional esbuild config that will keep our custom element code separate from the rest of the app. This will let us easily serve it to our clients without needing to do the additional step of publishing an npm package.
-
-### Setup
-
-To do this, crack open `config.exs` and add the following add a `:custom_elements` section to the end of your esbuild config:
-
-```elixir
-config :esbuild,
-  default: [
-    ...
-  ],
-  custom_elements: [
-    args:
-      ~w(js/custom_elements.ts --bundle --target=es2020 --format=esm --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
-```
-
-We'll want to add a watcher in our `dev.exs` as well. Add this line to the `watchers` section of your endpoint config:
-
-```elixir
-    esbuild_custom_elements: {Esbuild, :install_and_run, [:custom_elements, ~w(--sourcemap=inline --watch)]},
-```
-
-### Creating the element
-
 To create our `<contact-form>` custom element, we'll use a generator to help us out:
 
 ```
@@ -99,6 +72,22 @@ We'll also want to add an import for our element in `app/js/custom_elements.js`.
 
 ```javascript
 import './contact-form.js'
+```
+
+**Note: **
+It is recommended your `esbuild` config to target `es2020`:
+
+```elixir
+# Configure esbuild (the version is required)
+config :esbuild,
+  version: "0.17.11",
+  default: [
+    args:
+      ~w(js/app.js --bundle --target=es2020 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
+
 ```
 
 ### Render state, dispatch events
