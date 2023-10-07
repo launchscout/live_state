@@ -107,7 +107,8 @@ defmodule LiveState.Channel do
             {:noreply, initialize_state(state, socket)}
 
           {:error, error} ->
-            {:error, error}
+            push_error(socket, error)
+            {:noreply, socket}
         end
       end
 
@@ -192,6 +193,14 @@ defmodule LiveState.Channel do
 
       def push_event(socket, %Event{name: name, detail: detail}) do
         push(socket, name, detail)
+      end
+
+      def push_error(socket, message) when is_binary(message) do
+        push(socket, "error", %{message: message})
+      end
+
+      def push_error(socket, error) do
+        push(socket, "error", error)
       end
 
       defp push_state_change(socket, state, version) do

@@ -57,17 +57,17 @@
         "problemMatcher": "$mixTestFailure"
       },
       {
-        "label": "run testbed test at cursor",
+        "label": "mix test focused",
         "type": "shell",
         "command": "mix",
         "args": [
           "test",
-          "../${relativeFile}:${lineNumber}",
+          "${relativeFile}:${lineNumber}",
           "--color",
           "--trace"
         ],
         "options": {
-          "cwd": "${workspaceRoot}/testbed",
+          "cwd": "${workspaceRoot}",
           "requireFiles": [
             "test/**/test_helper.exs",
             "test/**/*_test.exs"
