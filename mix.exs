@@ -18,7 +18,7 @@ defmodule LiveState.MixProject do
       ],
       docs: [
         main: "readme",
-        extras: ["README.md"]
+        extras: ["README.md", "docs/tutorial_start.md"]
       ]
     ]
   end
