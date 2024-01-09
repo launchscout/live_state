@@ -1,4 +1,4 @@
-defmodule LiveState.LiveStateChannelTest do
+defmodule LiveState.BadInitChannelTest do
   use ExUnit.Case
 
   import Phoenix.ChannelTest
