@@ -124,6 +124,7 @@ Next, we need to implement our `render` method:
             <label>Phone Number</label>
             <input name="phone_number" required />
           </div>
+          <button>Save</button>
         </form>
       `;
     }

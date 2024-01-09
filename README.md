@@ -113,6 +113,10 @@ one or many events to dispatch on the calling DOM Element:
 
 The front end library npm package that implements sending and receiving events, and subscribing to state changes. It also facilitates building Custom Elements that are backed by LiveState.
 
+## [live-templates](https://github.com/launchscout/live-templates)
+
+Live-templates is an npm package that allows you to connect a front end template to a LiveState channel. Because it doesn't require a custom element or any other javascript code, it is probably the easiest way to get started with LiveState.
+
 ## [use-live-state](https://github.com/launchscout/use-live-state)
 
 A react hook for LiveState.
