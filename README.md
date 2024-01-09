@@ -1,16 +1,16 @@
 # LiveState
 
-This the elixir library for building servers for LiveState applications.
+This is the Elixir library for building servers for LiveState applications.
 
 ## What is LiveState?
 
-The goal of LiveState is to make building highly interactive web applications easier to build. Currently in most such applications clients send requests and receive responses from and to a server API. This essentially results in two applications, with state being managed in both in an ad hoc way.
+The goal of LiveState is to make highly interactive web applications easier to build. Currently, in most such applications, clients send requests and receive responses from and to a server API. This essentially results in two applications, with state being managed in both in an ad hoc way.
 
-LiveState uses a different approach. Clients dispatch events, which are sent to the server to be handled, and receive updates from the server any time application state changes. This allows state to have a single source of truth, and greatly reduces client code complexity. It also works equally well for applications where updates to state can occur indepently from a user initiated client side event (think "real time" applications such as chat, etc).
+LiveState uses a different approach. Clients dispatch events, which are sent to the server to be handled, and receive updates from the server any time application state changes. This allows state to have a single source of truth, and greatly reduces client code complexity. It also works equally well for applications where updates to state can occur independently from a user initiated, client side event (think "real time" applications such as chat, etc).
 
 ## How is LiveState different from LiveView?
 
-LiveState shares similar goals to LiveView, but takes a different approach which allows for building different kinds of applications. LiveView allows the user to write all of the application code, both server logic and view presentation logic, in Elixir, and manages the web client side of the application entirely. LiveState event handlers are written in Elixir and quite similar to LiveView event handlers, but LiveState relies on client code to render state and dispatch events. This trade-off keeps client side code simple, but allows LiveState to be used to build applications that are not as good of a fit for LiveView.
+LiveState shares similar goals to LiveView, but takes a different approach which allows for building different kinds of applications. LiveView allows the user to write all of the application code, both server logic and view presentation logic, in Elixir, and entirely manages the web client side of the application. LiveState event handlers are written in Elixir and are quite similar to LiveView event handlers, but LiveState relies on client code to render state and dispatch events. This trade-off keeps client side code simple, but allows LiveState to be used to build applications that are not as good of a fit for LiveView.
 
 ## Installation
 
@@ -30,9 +30,9 @@ While `cors_plug` is not strictly required, you will very likely want it to be a
 clients cannot connect to your channel.
 
 ## Usage
-First you need to setup a socket as you would with normal other [Phoenix Channels](https://hexdocs.pm/phoenix/channels.html)
+First you need to set up a socket as you would with other normal [Phoenix Channels](https://hexdocs.pm/phoenix/channels.html)
 
-1. On your Endpoint module, setup a socket for your channel:
+1. On your Endpoint module, set up a socket for your channel:
 ```elixir
 defmodule MyAppWeb.Endpoint do
   socket "/socket", PgLiveHeroWeb.Channels.LiveStateSocket
@@ -51,7 +51,7 @@ defmodule MyAppWeb.Socket do
   def id(_), do: "random_id"
 end
 ```
-3. Create you channel using the `LiveState.Channel` behaviour:
+3. Create your channel using the `LiveState.Channel` behaviour:
 
 ```elixir
 defmodule MyAppWeb.Channel do
@@ -59,13 +59,13 @@ defmodule MyAppWeb.Channel do
 ...
 ```
 
-4. Then want to define your initial state using the `c:LiveState.Channel.init/3` callback which will be called after channel joins and is expected to return the initial state:
+4. Then define your initial state using the `c:LiveState.Channel.init/3` callback, which will be called after channel joins and is expected to return the initial state:
 
 ```elixir
 def init(_channel, _payload, _socket), do: {:ok, %{foo: "bar"}}
 ```
 
-State must be a map. It will be sent down as JSON so anything in it
+State must be a map. It will be sent down as JSON, so anything in it
 must have a `Jason.Encoder` implementation.
 
 ## Events
@@ -119,11 +119,11 @@ A react hook for LiveState.
 
 ## [live_state_testbed](https://github.com/launchscout/live_state_testbed)
 
-This is a phoenix project that mainly provides integration tests for LiveState. It's also a great place to see examples of how to use LiveState
+This is a Phoenix project that mainly provides integration tests for LiveState. It's also a great place to see examples of how to use LiveState.
 
 ## Other resources
 
-There are several examples of full LiveState projects. This [blog post](https://launchscout.com/blog/embedded-web-apps-with-livestate) covers building a embeddable comments section custom element. The relevant source code repos:
+There are several examples of full LiveState projects. This [blog post](https://launchscout.com/blog/embedded-web-apps-with-livestate) covers building an embeddable custom element for a comments section. The relevant source code repos are:
 
 * https://github.com/launchscout/live_state_comments
 * https://github.com/launchscout/livestate-comments
