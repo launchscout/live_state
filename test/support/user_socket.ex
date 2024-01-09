@@ -11,6 +11,7 @@ defmodule LiveState.Test.UserSocket do
   ## Channels
 
   channel("todos:*", LiveState.Test.TodoChannel)
+  channel("transformer", LiveState.Test.TransformerChannel)
   channel("foo:*", LiveState.Test.PatchChannel)
   channel("authorized:*", LiveState.Test.AuthorizedChannel)
 
