@@ -13,6 +13,7 @@ defmodule LiveState.Channel do
   """
   import Phoenix.Socket
 
+  alias LiveState.Encoder
   alias LiveState.Event
 
   @doc """
@@ -113,7 +114,7 @@ defmodule LiveState.Channel do
       end
 
       defp initialize_state(state, socket) do
-        push_state_change(socket, state, 0)
+        push_state_change(socket, state |> Encoder.encode(), 0)
         socket |> assign(state_key(), state) |> assign(state_version_key(), 0)
       end
 
@@ -148,16 +149,16 @@ defmodule LiveState.Channel do
       defp update_state(%{assigns: assigns} = socket, new_state) do
         current_state = Map.get(assigns, state_key())
         new_state_version = increment_version(assigns)
-
+        encoded_state = Encoder.encode(new_state)
         if @json_patch do
-          push_json_patch(socket, current_state, new_state, new_state_version)
+          push_json_patch(socket, current_state, encoded_state, new_state_version)
         else
-          push_state_change(socket, new_state, new_state_version)
+          push_state_change(socket, encoded_state, new_state_version)
         end
 
         {:noreply,
          socket
-         |> assign(state_key(), new_state)
+         |> assign(state_key(), encoded_state)
          |> assign(state_version_key(), new_state_version)}
       end
 
