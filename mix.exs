@@ -39,7 +39,9 @@ defmodule LiveState.MixProject do
     [
       {:phoenix, ">= 1.5.7"},
       {:ex_doc, ">= 0.0.0"},
-      {:json_diff, ">= 0.0.0"}
+      {:json_diff, ">= 0.0.0"},
+      {:jason, "~> 1.4.1"},
+      {:rustler, "~> 0.32.1", runtime: false}
     ]
   end
 end

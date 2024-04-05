@@ -13,6 +13,7 @@ defmodule LiveState.Channel do
   """
   import Phoenix.Socket
 
+  alias LiveState.JSONDiffer
   alias LiveState.Event
 
   @doc """
@@ -163,6 +164,7 @@ defmodule LiveState.Channel do
 
       defp increment_version(assigns) do
         current_version = Map.get(assigns, state_version_key())
+
         if current_version < @max_version do
           current_version + 1
         else
@@ -209,10 +211,13 @@ defmodule LiveState.Channel do
       end
 
       defp push_json_patch(socket, current_state, new_state, version) do
-        push(socket, "state:patch", %{
-          patch: JSONDiff.diff(current_state, new_state),
-          version: version
-        })
+        current_state_json = Jason.encode!(current_state)
+        new_state_json = Jason.encode!(new_state)
+        push(
+          socket,
+          "state:patch",
+          {:binary, JSONDiffer.build_patch_message(current_state_json, new_state_json, version)}
+        )
       end
 
       defoverridable state_key: 0,

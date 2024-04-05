@@ -31,10 +31,14 @@ defmodule LiveState.JSONPatchTest do
 
   test "version rollover", %{socket: socket} do
     Enum.each(0..11, fn i -> push(socket, "lvs_evt:change_foo", %{"foo" => "bar #{i}"}) end)
-    assert_push("state:patch", %{
-      patch: [%{"op" => "replace", "path" => "/foo", "value" => "bar 11"}],
-      version: 1
-    })
+    for _i <- (0..10) do
+      assert_push("state:patch", _)
+    end
+    assert_push("state:patch", {:binary, raw_message})
+    assert %{
+      "patch" => [%{"op" => "replace", "path" => "/foo", "value" => "bar 11"}],
+      "version" => 1
+    } = Jason.decode!(raw_message)
   end
 
 end
