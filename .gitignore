@@ -1,3 +1,4 @@
 deps
 _build
 doc
+priv/native

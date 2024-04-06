@@ -24,7 +24,8 @@ defmodule LiveState.TestHelpers do
   """
   defmacro assert_state_patch(patch) do
     quote do
-      assert_push "state:patch", %{patch: unquote(patch)}
+      assert_push "state:patch", {:binary, raw_message}
+      assert %{"patch" => unquote(patch)} = Jason.decode!(raw_message)
     end
   end
 

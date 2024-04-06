@@ -1,0 +1,15 @@
+[package]
+name = "livestate_jsondiffer"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "livestate_jsondiffer"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+json-patch = "1.2.0"
+rustler = "0.32.1"
+serde_json = "1.0.115"
