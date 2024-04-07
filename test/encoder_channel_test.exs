@@ -1,9 +1,11 @@
-defmodule LiveState.SocketyChannelTest do
+defmodule LiveState.EncoderChannelTest do
   use ExUnit.Case
 
   import Phoenix.ChannelTest
-  alias LiveState.Test.SocketyChannel
+  alias LiveState.Test.EncoderChannel
   alias LiveState.Test.UserSocket
+
+  import LiveState.TestHelpers
 
   @endpoint LiveState.Test.Endpoint
 
@@ -13,26 +15,22 @@ defmodule LiveState.SocketyChannelTest do
 
     {:ok, _, socket} =
       socket(UserSocket, "wut", %{})
-      |> subscribe_and_join(SocketyChannel, "sockety:sock", %{})
+      |> subscribe_and_join(EncoderChannel, "foo:all")
 
     {:ok, %{socket: socket}}
   end
 
-  test "init", %{socket: %{assigns: %{baz: baz}}} do
-    assert baz == "bing"
-    assert_push(
-      "state:change",
-      %{state: %{foo: "bar"}, version: 0}
-    )
+  test "init" do
+    assert_push("state:change", %{state: %{thing: thing}, version: 0})
+    assert thing == %{bing: "baz", baz: "bing"}
   end
 
   test "handle_event", %{socket: socket} do
-    push(socket, "lvs_evt:something_sockety", %{"baz" => "wuzzle"})
+    send_event(socket, "change_baz", %{"baz" => "not_bing"})
 
     assert_push("state:patch", %{
       version: 1,
-      patch: [%{"op" => "replace", "path" => "/foo", "value" => "altered bar"}]
+      patch: [%{"op" => "replace", "path" => "/thing/baz", "value" => "not_bing"}]
     })
   end
-
 end

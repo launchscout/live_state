@@ -5,14 +5,16 @@ defmodule LiveState.Channel do
   ```
     use LiveState.Channel, web_module: MyAppWeb, json_patch: true, max_version: 100
   ```
-  - `json_patch` optional, defaults to `false`. If true, each time a new state is returned from
-  a `handle_XXX` callback a diff will be computed and a JSON patch send to the client.
+  - `message_builder` optional, defaults to `{LiveState.MessageBuilder, ignore_keys: [:__meta__]}`. If 
+  set, should tuple of module that defines `update_state_message/4` and `new_state_message/3` and options. 
+  Options are passed as final arg to both fundtions.
   - `max_version` optional, defaults to 1000. This is the maximum version number, after which it will
   reset to 0 and begin incrementing again. Version numbers are used to detect a patch message arriving
   out of order. If such a condition is detected by `phx-live-state` a new copy of state is requested.
   """
   import Phoenix.Socket
 
+  alias LiveState.Encoder
   alias LiveState.Event
 
   @doc """
@@ -84,7 +86,13 @@ defmodule LiveState.Channel do
       @dialyzer {:nowarn_function, update_state: 2}
 
       @behaviour unquote(__MODULE__)
-      @json_patch unquote(Keyword.get(opts, :json_patch))
+      @message_builder unquote(
+                         Keyword.get(
+                           opts,
+                           :message_builder,
+                           {LiveState.MessageBuilder, ignore_keys: [:__meta__]}
+                         )
+                       )
       @max_version unquote(Keyword.get(opts, :max_version, 1000))
 
       def join(channel, payload, socket) do
@@ -113,7 +121,8 @@ defmodule LiveState.Channel do
       end
 
       defp initialize_state(state, socket) do
-        push_state_change(socket, state, 0)
+        {event_name, message} = build_new_state_message(state, 0)
+        push(socket, event_name, message)
         socket |> assign(state_key(), state) |> assign(state_version_key(), 0)
       end
 
@@ -148,12 +157,8 @@ defmodule LiveState.Channel do
       defp update_state(%{assigns: assigns} = socket, new_state) do
         current_state = Map.get(assigns, state_key())
         new_state_version = increment_version(assigns)
-
-        if @json_patch do
-          push_json_patch(socket, current_state, new_state, new_state_version)
-        else
-          push_state_change(socket, new_state, new_state_version)
-        end
+        {event_name, message} = build_update_message(current_state, new_state, new_state_version)
+        push(socket, event_name, message)
 
         {:noreply,
          socket
@@ -161,8 +166,23 @@ defmodule LiveState.Channel do
          |> assign(state_version_key(), new_state_version)}
       end
 
+      defp build_update_message(current_state, new_state, version) do
+        case @message_builder do
+          {mod, opts} -> mod.update_state_message(current_state, new_state, version, opts)
+          mod -> mod.update_state_message(current_state, new_state, version)
+        end
+      end
+
+      defp build_new_state_message(new_state, version) do
+        case @message_builder do
+          {mod, opts} -> mod.new_state_message(new_state, version, opts)
+          mod -> mod.new_state_message(new_state, version)
+        end
+      end
+
       defp increment_version(assigns) do
         current_version = Map.get(assigns, state_version_key())
+
         if current_version < @max_version do
           current_version + 1
         else
