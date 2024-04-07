@@ -29,9 +29,9 @@ defmodule LiveState.SocketyChannelTest do
   test "handle_event", %{socket: socket} do
     push(socket, "lvs_evt:something_sockety", %{"baz" => "wuzzle"})
 
-    assert_push("state:change", %{
-      state: %{foo: "altered bar"},
-      version: 1
+    assert_push("state:patch", %{
+      version: 1,
+      patch: [%{"op" => "replace", "path" => "/foo", "value" => "altered bar"}]
     })
   end
 

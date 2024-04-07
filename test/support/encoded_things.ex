@@ -3,15 +3,15 @@ defmodule LiveState.Test.Thing do
 end
 
 defimpl LiveState.Encoder, for: LiveState.Test.Thing do
-  def encode(%LiveState.Test.Thing{foo: foo}) do
+  def encode(%LiveState.Test.Thing{foo: foo}, []) do
     %{foo: foo}
   end
 end
 
 defmodule LiveState.Test.OtherThing do
-  @derive [{LiveState.Encoder, except: [:wuzzle]}]
+  @derive [{LiveState.Encoder, except: [:wuzzle, :__meta__]}]
 
-  defstruct [:bing, :baz, :wuzzle]
+  defstruct [:bing, :baz, :wuzzle, :__meta__]
 end
 
 defmodule LiveState.Test.OnlyThing do
@@ -19,3 +19,4 @@ defmodule LiveState.Test.OnlyThing do
 
   defstruct [:bing, :baz, :wuzzle]
 end
+

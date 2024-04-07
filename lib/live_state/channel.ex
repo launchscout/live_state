@@ -85,7 +85,13 @@ defmodule LiveState.Channel do
       @dialyzer {:nowarn_function, update_state: 2}
 
       @behaviour unquote(__MODULE__)
-      @json_patch unquote(Keyword.get(opts, :json_patch))
+      @message_builder unquote(
+                         Keyword.get(
+                           opts,
+                           :message_builder,
+                           {LiveState.MessageBuilder, ignore_keys: [:__meta__]}
+                         )
+                       )
       @max_version unquote(Keyword.get(opts, :max_version, 1000))
 
       def join(channel, payload, socket) do
@@ -114,7 +120,8 @@ defmodule LiveState.Channel do
       end
 
       defp initialize_state(state, socket) do
-        push_state_change(socket, state |> Encoder.encode(), 0)
+        {event_name, message} = build_new_state_message(state, 0)
+        push(socket, event_name, message)
         socket |> assign(state_key(), state) |> assign(state_version_key(), 0)
       end
 
@@ -149,21 +156,32 @@ defmodule LiveState.Channel do
       defp update_state(%{assigns: assigns} = socket, new_state) do
         current_state = Map.get(assigns, state_key())
         new_state_version = increment_version(assigns)
-        encoded_state = Encoder.encode(new_state)
-        if @json_patch do
-          push_json_patch(socket, current_state, encoded_state, new_state_version)
-        else
-          push_state_change(socket, encoded_state, new_state_version)
-        end
+        {event_name, message} = build_update_message(current_state, new_state, new_state_version)
+        push(socket, event_name, message)
 
         {:noreply,
          socket
-         |> assign(state_key(), encoded_state)
+         |> assign(state_key(), new_state)
          |> assign(state_version_key(), new_state_version)}
+      end
+
+      defp build_update_message(current_state, new_state, version) do
+        case @message_builder do
+          {mod, opts} -> mod.update_state_message(current_state, new_state, version, opts)
+          mod -> mod.update_state_message(current_state, new_state, version)
+        end
+      end
+
+      defp build_new_state_message(new_state, version) do
+        case @message_builder do
+          {mod, opts} -> mod.new_state_message(new_state, version, opts)
+          mod -> mod.new_state_message(new_state, version)
+        end
       end
 
       defp increment_version(assigns) do
         current_version = Map.get(assigns, state_version_key())
+
         if current_version < @max_version do
           current_version + 1
         else

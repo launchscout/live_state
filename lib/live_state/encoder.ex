@@ -1,12 +1,12 @@
 defprotocol LiveState.Encoder do
   @fallback_to_any true
-  def encode(data)
+  def encode(data, opts \\ [])
 end
 
 defimpl LiveState.Encoder, for: Any do
   alias LiveState.Encoder
 
-  def encode(data) do
+  def encode(data, _opts) do
     data
   end
 
@@ -15,20 +15,20 @@ defimpl LiveState.Encoder, for: Any do
       defimpl LiveState.Encoder, for: unquote(module) do
         case unquote(options) do
           [] ->
-            def encode(data) do
-              Map.from_struct(data) |> Encoder.encode()
+            def encode(data, opts \\ []) do
+              Map.from_struct(data) |> Encoder.encode(opts)
             end
 
           [{:except, except}] ->
-            def encode(data) do
+            def encode(data, opts \\ []) do
               except = Keyword.get(unquote(options), :except)
-              Map.from_struct(data) |> Map.drop(except) |> Encoder.encode()
+              Map.from_struct(data) |> Map.drop(except) |> Encoder.encode(opts)
             end
 
           [{:only, only}] ->
-            def encode(data) do
+            def encode(data, opts \\ []) do
               only = Keyword.get(unquote(options), :only)
-              Map.from_struct(data) |> Map.take(only) |> Encoder.encode()
+              Map.from_struct(data) |> Map.take(only) |> Encoder.encode(opts)
             end
 
           _ ->
@@ -42,9 +42,14 @@ end
 defimpl LiveState.Encoder, for: Map do
   alias LiveState.Encoder
 
-  def encode(map) do
+  def encode(map, opts \\ []) do
+    ignore_keys = Keyword.get(opts, :ignore_keys, [])
     Enum.reduce(map, %{}, fn {k, v}, acc ->
-      Map.put(acc, k, Encoder.encode(v))
+      if !(k in ignore_keys) do
+        Map.put(acc, k, Encoder.encode(v, opts))
+      else
+        acc
+      end
     end)
   end
 end
@@ -52,7 +57,7 @@ end
 defimpl LiveState.Encoder, for: List do
   alias LiveState.Encoder
 
-  def encode(list) do
-    Enum.map(list, &Encoder.encode/1)
+  def encode(list, opts \\ []) do
+    Enum.map(list, &Encoder.encode(&1, opts))
   end
 end

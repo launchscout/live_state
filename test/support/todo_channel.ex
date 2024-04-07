@@ -1,7 +1,22 @@
 defmodule LiveState.Test.TodoChannel do
   @moduledoc false
 
-  use LiveState.Channel, web_module: LiveState.Test.Web
+  alias LiveState.MessageBuilder
+
+  defmodule MyMessageBuilder do
+    def update_state_message(_current_state, new_state, version),
+      do: MessageBuilder.new_state_message(new_state, version)
+
+    def new_state_message(new_state, version),
+      do: MessageBuilder.new_state_message(new_state, version)
+  end
+
+  alias LiveState.MessageBuilder
+
+  use LiveState.Channel,
+    web_module: LiveState.Test.Web,
+    message_builder: MyMessageBuilder
+
   alias LiveState.Event
 
   @impl true

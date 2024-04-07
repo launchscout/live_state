@@ -2,7 +2,6 @@ defmodule LiveState.EncoderChannelTest do
   use ExUnit.Case
 
   import Phoenix.ChannelTest
-  alias LiveState.Test.OtherThing
   alias LiveState.Test.EncoderChannel
   alias LiveState.Test.UserSocket
 
@@ -28,8 +27,10 @@ defmodule LiveState.EncoderChannelTest do
 
   test "handle_event", %{socket: socket} do
     send_event(socket, "change_baz", %{"baz" => "not_bing"})
-    assert_push("state:change", %{state: %{thing: thing}, version: 1})
-    assert thing == %{bing: "baz", baz: "not_bing"}
-  end
 
+    assert_push("state:patch", %{
+      version: 1,
+      patch: [%{"op" => "replace", "path" => "/thing/baz", "value" => "not_bing"}]
+    })
+  end
 end

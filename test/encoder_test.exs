@@ -11,6 +11,11 @@ defmodule LiveState.EncoderTest do
     assert LiveState.Encoder.encode(%Thing{foo: "bar", bar: "baz"}) == %{foo: "bar"}
   end
 
+  test "encode without keys" do
+    assert LiveState.Encoder.encode(%{foo: "wut", __meta__: "blah"}, ignore_keys: [:__meta__]) ==
+             %{foo: "wut"}
+  end
+
   test "encode a list" do
     assert LiveState.Encoder.encode([%{foo: "bar"}, %Thing{foo: "baz", bar: "bing"}]) == [
              %{foo: "bar"},
