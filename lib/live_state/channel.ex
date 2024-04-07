@@ -5,8 +5,9 @@ defmodule LiveState.Channel do
   ```
     use LiveState.Channel, web_module: MyAppWeb, json_patch: true, max_version: 100
   ```
-  - `json_patch` optional, defaults to `false`. If true, each time a new state is returned from
-  a `handle_XXX` callback a diff will be computed and a JSON patch send to the client.
+  - `message_builder` optional, defaults to `{LiveState.MessageBuilder, ignore_keys: [:__meta__]}`. If 
+  set, should tuple of module that defines `update_state_message/4` and `new_state_message/3` and options. 
+  Options are passed as final arg to both fundtions.
   - `max_version` optional, defaults to 1000. This is the maximum version number, after which it will
   reset to 0 and begin incrementing again. Version numbers are used to detect a patch message arriving
   out of order. If such a condition is detected by `phx-live-state` a new copy of state is requested.

@@ -1,4 +1,9 @@
 defprotocol LiveState.Encoder do
+  @moduledoc """
+  Allows customization of the representation of a given type
+  as the state in a `LiveState.Channel`. It is called *before* serialization
+  and json diffing.
+  """
   @fallback_to_any true
   def encode(data, opts \\ [])
 end
