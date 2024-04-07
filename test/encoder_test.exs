@@ -2,6 +2,7 @@ defmodule LiveState.EncoderTest do
   use ExUnit.Case
 
   alias LiveState.Test.Thing
+  alias LiveState.Test.FakeSchema
 
   test "encode" do
     assert LiveState.Encoder.encode(%{foo: "bar"}) == %{foo: "bar"}
@@ -9,6 +10,14 @@ defmodule LiveState.EncoderTest do
 
   test "encode with struct" do
     assert LiveState.Encoder.encode(%Thing{foo: "bar", bar: "baz"}) == %{foo: "bar"}
+  end
+
+  test "encode fake schema" do
+    assert LiveState.Encoder.encode(%FakeSchema{foo: "bar", __meta__: "hot garbage"},
+             ignore_keys: [:__meta__]
+           ) == %{
+             foo: "bar"
+           }
   end
 
   test "encode without keys" do

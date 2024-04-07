@@ -20,3 +20,7 @@ defmodule LiveState.Test.OnlyThing do
   defstruct [:bing, :baz, :wuzzle]
 end
 
+defmodule LiveState.Test.FakeSchema do
+  defstruct [:foo, :__meta__]
+end
+

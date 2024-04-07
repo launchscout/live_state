@@ -6,8 +6,11 @@ end
 defimpl LiveState.Encoder, for: Any do
   alias LiveState.Encoder
 
-  def encode(data, _opts) do
-    data
+  def encode(data, opts) do
+    case data do
+      data when is_struct(data) -> Map.from_struct(data) |> Encoder.encode(opts)
+      data -> data
+    end
   end
 
   defmacro __deriving__(module, _struct, options) do
