@@ -3,18 +3,18 @@ defmodule LiveState.Channel do
   To build a LiveState application, you'll first want to add a channel that `use`s this module.
 
   ```
-    use LiveState.Channel, web_module: MyAppWeb, json_patch: true, max_version: 100
+    use LiveState.Channel, web_module: MyAppWeb, max_version: 100
   ```
-  - `message_builder` optional, defaults to `{LiveState.MessageBuilder, ignore_keys: [:__meta__]}`. If 
-  set, should tuple of module that defines `update_state_message/4` and `new_state_message/3` and options. 
-  Options are passed as final arg to both fundtions.
+  - `message_builder` optional, defaults to `{LiveState.MessageBuilder, ignore_keys: [:__meta__]}`. If
+  set, should be a tuple whose first element is a module that defines `update_state_message/4` and `new_state_message/3` and
+  and second element contains any options. Options are passed as final arg to both functions when invoked.
+  See `LiveState.MessageBuilder` for details
   - `max_version` optional, defaults to 1000. This is the maximum version number, after which it will
   reset to 0 and begin incrementing again. Version numbers are used to detect a patch message arriving
   out of order. If such a condition is detected by `phx-live-state` a new copy of state is requested.
   """
   import Phoenix.Socket
 
-  alias LiveState.Encoder
   alias LiveState.Event
 
   @doc """

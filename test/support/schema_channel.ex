@@ -10,18 +10,16 @@ defmodule LiveState.Test.SchemaChannel do
      %{
        thing: %FakeSchema{
          foo: "bar",
-         __meta__: %{random: "garbage"}
+         inserted_at: DateTime.utc_now(),
+         updated_at: DateTime.utc_now()
        }
      }}
   end
 
-  def handle_event("change_foo", %{"foo" => new_foo}, _state) do
+  def handle_event("change_foo", %{"foo" => new_foo}, %{thing: thing}) do
     {:noreply,
      %{
-       thing: %FakeSchema{
-         foo: new_foo,
-         __meta__: %{random: "more garbage"}
-       }
+       thing: %{thing | foo: new_foo, updated_at: DateTime.utc_now()}
      }}
   end
 end

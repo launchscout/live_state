@@ -13,11 +13,15 @@ defmodule LiveState.EncoderTest do
   end
 
   test "encode fake schema" do
-    assert LiveState.Encoder.encode(%FakeSchema{foo: "bar", __meta__: "hot garbage"},
-             ignore_keys: [:__meta__]
-           ) == %{
-             foo: "bar"
-           }
+    now = DateTime.utc_now()
+    iso_date = DateTime.to_iso8601(now)
+    assert %{
+             foo: "bar",
+             inserted_at: ^iso_date
+           } =
+             LiveState.Encoder.encode(%FakeSchema{foo: "bar", inserted_at: now},
+               ignore_keys: [:__meta__]
+             )
   end
 
   test "encode without keys" do

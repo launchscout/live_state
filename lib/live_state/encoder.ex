@@ -13,7 +13,7 @@ defimpl LiveState.Encoder, for: Any do
 
   def encode(data, opts) do
     case data do
-      data when is_struct(data) -> Map.from_struct(data) |> Encoder.encode(opts)
+      %{__meta__: _meta} = data when is_struct(data) -> Map.from_struct(data) |> Encoder.encode(opts)
       data -> data
     end
   end
@@ -60,6 +60,10 @@ defimpl LiveState.Encoder, for: Map do
       end
     end)
   end
+end
+
+defimpl LiveState.Encoder, for: DateTime do
+  def encode(date, _opts), do: DateTime.to_iso8601(date)
 end
 
 defimpl LiveState.Encoder, for: List do

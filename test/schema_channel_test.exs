@@ -22,7 +22,7 @@ defmodule LiveState.SchemaChanneltest do
 
   test "init" do
     assert_push("state:change", %{state: %{thing: thing}, version: 0})
-    assert thing == %{foo: "bar"}
+    assert %{foo: "bar", inserted_at: _date_string} = thing
   end
 
   test "handle_event", %{socket: socket} do
@@ -30,7 +30,10 @@ defmodule LiveState.SchemaChanneltest do
 
     assert_push("state:patch", %{
       version: 1,
-      patch: [%{"op" => "replace", "path" => "/thing/foo", "value" => "not_bar"}]
+      patch: patches
     })
+    paths = patches |> Enum.map(& &1["path"])
+    assert "/thing/foo" in paths
+    assert "/thing/updated_at" in paths
   end
 end

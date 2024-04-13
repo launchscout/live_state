@@ -4,6 +4,7 @@ defmodule LiveState.Test.TodoChannel do
   alias LiveState.MessageBuilder
 
   defmodule MyMessageBuilder do
+    @moduledoc false
     def update_state_message(_current_state, new_state, version),
       do: MessageBuilder.new_state_message(new_state, version)
 
