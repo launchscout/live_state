@@ -66,6 +66,10 @@ defimpl LiveState.Encoder, for: DateTime do
   def encode(date, _opts), do: DateTime.to_iso8601(date)
 end
 
+defimpl LiveState.Encoder, for: Date do
+  def encode(date, _opts), do: Date.to_iso8601(date)
+end
+
 defimpl LiveState.Encoder, for: List do
   alias LiveState.Encoder
 

@@ -12,6 +12,11 @@ defmodule LiveState.EncoderTest do
     assert LiveState.Encoder.encode(%Thing{foo: "bar", bar: "baz"}) == %{foo: "bar"}
   end
 
+  test "encode date" do
+    today = Date.utc_today()
+    assert LiveState.Encoder.encode(today) == Date.to_iso8601(today)
+  end
+
   test "encode fake schema" do
     now = DateTime.utc_now()
     iso_date = DateTime.to_iso8601(now)
