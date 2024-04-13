@@ -17,6 +17,16 @@ defmodule LiveState.EncoderTest do
     assert LiveState.Encoder.encode(today) == Date.to_iso8601(today)
   end
 
+  test "encode time" do
+    time = ~T[12:00:00]
+    assert LiveState.Encoder.encode(time) == Time.to_iso8601(time)
+  end
+
+  test "encode naive datetime" do
+    naive_datetime = ~N[2024-03-16 17:02:19]
+    assert LiveState.Encoder.encode(naive_datetime) == NaiveDateTime.to_iso8601(naive_datetime)
+  end
+
   test "encode fake schema" do
     now = DateTime.utc_now()
     iso_date = DateTime.to_iso8601(now)
