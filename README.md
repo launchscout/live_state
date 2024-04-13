@@ -20,7 +20,7 @@ by adding `live_state` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:live_state, "~> 0.7.0"},
+    {:live_state, "~> 0.8.1"},
     {:cors_plug, "~> 3.0"}
   ]
 end
