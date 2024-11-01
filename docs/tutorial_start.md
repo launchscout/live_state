@@ -71,7 +71,6 @@ This will generate an element for us in `assets/js/contact-form.ts`. While LiveS
 We'll also want to add an import for our element in `assets/js/custom_elements.js`. You'll want to create this file if it doesn't exit. Add this line for the import:
 
 ```javascript
-// assets/js/custom_elements.js
 import './contact-form.js'
 ```
 
@@ -195,7 +194,9 @@ mix live_state.gen.channel ContactForm
 When it asks, we can let it go ahead and create the socket for us and add the channel to it. We'll need to add this new socket to our endpoint:
 
 ```elixir
-  socket "/live_state", PipeSpotWeb.LiveStateSocket
+socket "/socket", PipeSpotWeb.LiveStateSocket,
+    websocket: true,
+    longpoll: false
 ```
 
 ## Creating contacts
