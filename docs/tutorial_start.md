@@ -4,7 +4,7 @@ In this tutorial, we'll be building an embedded app with LiveState. In our examp
 
 ## What's an embedded app?
 
-I'm so glad you asked! An embedded app is designed to live inside a larger app. For our purposes the larger app is a customers website, and the embedded app is the PipeSpot contact form. 
+I'm so glad you asked! An embedded app is designed to live inside a larger app. For our purposes the larger app is a customers website, and the embedded app is the PipeSpot contact form.
 
 # How will this work?
 
@@ -66,28 +66,55 @@ To create our `<contact-form>` custom element, we'll use a generator to help us 
 mix live_state.gen.element ContactForm contact-form
 ```
 
-This will generate an element for us in `app/js/contact-form.ts`. While LiveState itself is not tied to any specific library, for the purposes of convenience we generate an element based on the [lit](https://lit.dev) library. The generator will also install the necessary npms for you.
+This will generate an element for us in `assets/js/contact-form.ts`. While LiveState itself is not tied to any specific library, for the purposes of convenience we generate an element based on the [lit](https://lit.dev) library. The generator will also install the necessary npms for you.
 
-We'll also want to add an import for our element in `app/js/custom_elements.js`. You'll want to create this file if it doesn't exit. Add this line for the import:
+We'll also want to add an import for our element in `assets/js/custom_elements.js`. You'll want to create this file if it doesn't exit. Add this line for the import:
 
 ```javascript
 import './contact-form.js'
 ```
 
 **Note: **
-It is recommended your `esbuild` config to target `es2020`:
+It is recommended your `esbuild` config to target `es2020`, also add a new build target for your components.
 
 ```elixir
-# Configure esbuild (the version is required)
+# config/config.exs
 config :esbuild,
   version: "0.17.11",
-  default: [
+  pipe_spot: [
     args:
       ~w(js/app.js --bundle --target=es2020 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ],
+  # Add this target bellow
+  custom_elements: [
+    args:
+    ~w(js/custom_elements.js --bundle --target=es2020 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
+```
+
+If you also want esbuild to watch for file change, you should update your dev config:
+
+```elixir
+config :pipe_spot, PipeSpotWeb.Endpoint,
+  # Binding to loopback ipv4 address prevents access from other machines.
+  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
+  http: [ip: {127, 0, 0, 1}, port: 4000],
+  check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  secret_key_base: "yyy/xxx",
+  watchers: [
+    esbuild: {Esbuild, :install_and_run, [:pipe_spot, ~w(--sourcemap=inline --watch)]},
+    # add this watcher
+    esbuild_custom_elements:
+      {Esbuild, :install_and_run, [:custom_elements, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:pipe_spot, ~w(--watch)]}
+  ]
 ```
 
 ### Render state, dispatch events
@@ -156,7 +183,7 @@ And finally we'll need to add this new custom event to our `@liveState` decorato
 
 ## Creating our Channel
 
-The backend of a LiveState application is a Phoenix Channel that implements the LiveState.Channel behaviour. Our channel is responsible for managing the state of our application and providing it to our front end: in this case, our `<contact-form>` custom element. It receives events from the front end. Events may result in a new state, and any state changes are pushed to the front end over the channel. This keeps our front end code nice and simple, because it only needs to render the current state and dispatch events. 
+The backend of a LiveState application is a Phoenix Channel that implements the LiveState.Channel behaviour. Our channel is responsible for managing the state of our application and providing it to our front end: in this case, our `<contact-form>` custom element. It receives events from the front end. Events may result in a new state, and any state changes are pushed to the front end over the channel. This keeps our front end code nice and simple, because it only needs to render the current state and dispatch events.
 
 To create the channel, we can use the live_state channel generator like so:
 
@@ -167,7 +194,9 @@ mix live_state.gen.channel ContactForm
 When it asks, we can let it go ahead and create the socket for us and add the channel to it. We'll need to add this new socket to our endpoint:
 
 ```elixir
-  socket "/live_state", PipeSpotWeb.LiveStateSocket
+socket "/socket", PipeSpotWeb.LiveStateSocket,
+    websocket: true,
+    longpoll: false
 ```
 
 ## Creating contacts
