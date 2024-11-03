@@ -65,8 +65,11 @@ defmodule MyAppWeb.Channel do
 def init(_channel, _payload, _socket), do: {:ok, %{foo: "bar"}}
 ```
 
-State must be a map. It will be sent down as JSON, so anything in it
-must have a `Jason.Encoder` implementation.
+# State encoding and serialization
+
+To send the state to the client, it is encoded and then serialized as JSON before being pushed over the channel. The encoding is handled by the `c:LiveState.Encoder` protocol, the default implementation of which will handle all Elixir terms including converting structs to maps and removing the the `__meta__` field for `Ecto.Schema` structs. You can optionally implement the protocol to gain control over this encoding. It is important to understand that this encoding happens before JSON serialization and diffing occurs. 
+
+After the initial state is sent, subsequent state updates will be diffed against previous state using the [jsondiff](https://hexdocs.pm/json_diff/JSONDiff.html#content) library and sent in [jsonpatch](https://datatracker.ietf.org/doc/html/rfc6902) format. You can, if you wish, provide an alternate implementation of the encoding and serialization process by specifying a module as the `message_builder` option when calling `use LiveState.Channel`. See `c:LiveState.MessageBuilder` for an example.
 
 ## Events
 
@@ -83,7 +86,7 @@ For events emitted from the client, you implement the `c:LiveState.Channel.handl
 
 * event name
 * payload
-* current
+* current state
 
 And returns a tuple whose last element is the new state. It can also return
 one or many events to dispatch on the calling DOM Element:
