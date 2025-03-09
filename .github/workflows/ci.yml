@@ -5,7 +5,7 @@ on: push
 jobs:
   test:
     name: Build and run tests
-    runs-on: ubuntu-24
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout project
