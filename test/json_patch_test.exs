@@ -29,6 +29,13 @@ defmodule LiveState.JSONPatchTest do
     assert_state_patch([%{"op" => "replace", "path" => "/foo", "value" => "not_bar"}])
   end
 
+  test "lvs_refresh", %{socket: socket} do
+    send_event(socket, "change_foo", %{"foo" => "not_bar"})
+    assert_state_patch([%{"op" => "replace", "path" => "/foo", "value" => "not_bar"}])
+    push(socket, "lvs_refresh", %{})
+    assert_push("state:change", %{state: %{foo: "not_bar"}, version: 1})
+  end
+
   test "version rollover", %{socket: socket} do
     Enum.each(0..11, fn i -> push(socket, "lvs_evt:change_foo", %{"foo" => "bar #{i}"}) end)
     assert_push("state:patch", %{

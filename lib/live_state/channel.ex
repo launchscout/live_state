@@ -15,6 +15,7 @@ defmodule LiveState.Channel do
   """
   import Phoenix.Socket
 
+  alias Phoenix.Socket
   alias LiveState.Event
 
   @doc """
@@ -128,6 +129,11 @@ defmodule LiveState.Channel do
 
       def handle_info(message, %{assigns: assigns} = socket) do
         handle_message(message, Map.get(assigns, state_key())) |> maybe_handle_reply(socket)
+      end
+
+      def handle_in("lvs_refresh", _payload, %{assigns: assigns} = socket) do
+        push_state_change(socket, Map.get(assigns, state_key()), Map.get(assigns, state_version_key()))
+        {:noreply, socket}
       end
 
       def handle_in("lvs_evt:" <> event_name, payload, %{assigns: assigns} = socket) do
