@@ -15,7 +15,6 @@ defmodule LiveState.Channel do
   """
   import Phoenix.Socket
 
-  alias Phoenix.Socket
   alias LiveState.Event
 
   @doc """
@@ -87,34 +86,36 @@ defmodule LiveState.Channel do
       @dialyzer {:nowarn_function, update_state: 2}
 
       @behaviour unquote(__MODULE__)
-      @message_builder unquote(
+      @message_builder (case unquote(
                          Keyword.get(
                            opts,
                            :message_builder,
                            {LiveState.MessageBuilder, ignore_keys: [:__meta__]}
                          )
-                       )
+                       ) do
+        {mod, opts} when is_atom(mod) -> {mod, opts}
+        mod when is_atom(mod) -> {mod, []}
+      end)
       @max_version unquote(Keyword.get(opts, :max_version, 1000))
 
       def join(channel, payload, socket) do
-        case authorize(channel, payload, socket) do
-          {:ok, socket} ->
-            send(self(), {:after_join, channel, payload})
-            {:ok, socket}
-
-          {:error, reason} ->
-            {:error, reason}
+        with {:ok, socket} <- authorize(channel, payload, socket) do
+          send(self(), {:after_join, channel, payload})
+          {:ok, socket}
         end
       end
 
       def handle_info({:after_join, channel, payload}, socket) do
-        case init(channel, payload, socket) do
-          {:ok, state, socket} ->
-            {:noreply, initialize_state(state, socket)}
+        init(channel, payload, socket)
+        |> handle_init_result(socket)
+      end
 
-          {:ok, state} ->
+      defp handle_init_result(result, socket) do
+        case result do
+          {:ok, state, new_socket} when is_map(state) ->
+            {:noreply, initialize_state(state, new_socket)}
+          {:ok, state} when is_map(state) ->
             {:noreply, initialize_state(state, socket)}
-
           {:error, error} ->
             push_error(socket, error)
             {:noreply, socket}
@@ -173,16 +174,20 @@ defmodule LiveState.Channel do
       end
 
       defp build_update_message(current_state, new_state, version) do
-        case @message_builder do
-          {mod, opts} -> mod.update_state_message(current_state, new_state, version, opts)
-          mod -> mod.update_state_message(current_state, new_state, version)
+        {mod, opts} = @message_builder
+        if function_exported?(mod, :update_state_message, 4) do
+          mod.update_state_message(current_state, new_state, version, opts)
+        else
+          mod.update_state_message(current_state, new_state, version)
         end
       end
 
       defp build_new_state_message(new_state, version) do
-        case @message_builder do
-          {mod, opts} -> mod.new_state_message(new_state, version, opts)
-          mod -> mod.new_state_message(new_state, version)
+        {mod, opts} = @message_builder
+        if function_exported?(mod, :new_state_message, 3) do
+          mod.new_state_message(new_state, version, opts)
+        else
+          mod.new_state_message(new_state, version)
         end
       end
 
