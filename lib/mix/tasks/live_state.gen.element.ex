@@ -16,7 +16,6 @@ defmodule Mix.Tasks.LiveState.Gen.Element do
     * a channel test in `test/my_app_web/channels`
   """
   use Mix.Task
-  alias Mix.Tasks.Phx.Gen
 
   @doc false
   def run(args) do
