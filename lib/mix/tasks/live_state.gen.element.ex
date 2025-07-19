@@ -1,19 +1,17 @@
 defmodule Mix.Tasks.LiveState.Gen.Element do
-  @shortdoc "Generates a Phoenix channel"
+  @shortdoc "Generates a LiveState connected custom element (using the lit library)."
 
   @moduledoc """
-  Generates a Livestate channel.
+  Generates a LiveState connected custom element (using the lit library).
 
-      $ mix live_state.gen.channel Todo
+      $ mix live_state.gen.element ContactForm contact-form
 
-  Accepts the module name for the channel
+  Accepts the LiveState channel name and a tag name for the custom element.
 
-  The generated files will contain:
+  The generator will:
 
-  For a regular application:
-
-    * a channel in `lib/my_app_web/channels`
-    * a channel test in `test/my_app_web/channels`
+    * add a custom element file in `assets/js`
+    * add library dependencies to `assets/js/package.json`
   """
   use Mix.Task
 
