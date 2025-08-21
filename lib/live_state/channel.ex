@@ -77,6 +77,14 @@ defmodule LiveState.Channel do
               {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any()}
               | {:noreply, new_state :: term}
 
+  @doc """
+  Receives pubsub message and current state. Use this callback if you need to
+  receive the socket as well as the state. Returns new state.
+  """
+  @callback handle_message(message :: term(), state :: term(), socket :: Socket.t()) ::
+              {:reply, reply :: %LiveState.Event{} | list(%LiveState.Event{}), new_state :: any(), Socket.t()}
+              | {:noreply, new_state :: term, Socket.t()}
+
   defmacro __using__(opts) do
     quote do
       use unquote(Keyword.get(opts, :web_module)), :channel
@@ -129,7 +137,12 @@ defmodule LiveState.Channel do
       end
 
       def handle_info(message, %{assigns: assigns} = socket) do
-        handle_message(message, Map.get(assigns, state_key())) |> maybe_handle_reply(socket)
+        if function_exported?(__MODULE__, :handle_message, 3) do
+          apply(__MODULE__, :handle_message, [message, Map.get(assigns, state_key()), socket])
+        else
+          apply(__MODULE__, :handle_message, [message, Map.get(assigns, state_key())])
+        end
+        |> maybe_handle_reply(socket)
       end
 
       def handle_in("lvs_refresh", _payload, %{assigns: assigns} = socket) do

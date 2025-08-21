@@ -35,4 +35,13 @@ defmodule LiveState.SocketyChannelTest do
     })
   end
 
+  test "handle_message", %{socket: socket} do
+    send(socket.channel_pid, "message too")
+
+    assert_push("state:patch", %{
+      version: 1,
+      patch: [%{"op" => "replace", "path" => "/foo", "value" => "altered bar"}]
+    })
+  end
+
 end
