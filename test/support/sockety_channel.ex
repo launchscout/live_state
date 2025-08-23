@@ -12,5 +12,9 @@ defmodule LiveState.Test.SocketyChannel do
   def handle_event("something_sockety", %{"baz" => new_baz}, %{foo: foo}, %{assigns: %{baz: baz}} = socket) do
     {:noreply, %{foo: "altered #{foo}"}, socket |> assign(:baz, new_baz)}
   end
-
+  
+  @impl true
+  def handle_message("message too", %{foo: foo}, %{assigns: %{baz: baz}} = socket) do
+    {:noreply, %{foo: "altered #{foo}"}, socket}
+  end
 end
