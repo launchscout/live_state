@@ -58,7 +58,7 @@ defmodule LiveState.Channel do
                Socket.t()}
               | {:noreply, new_state :: map(), Socket.t()}
 
-  @optional_callbacks handle_event: 4, handle_event: 3
+  @optional_callbacks handle_event: 4, handle_event: 3, handle_message: 3
 
   @doc """
   The key on assigns to hold application state. Defaults to `:state`.
