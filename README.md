@@ -52,7 +52,6 @@ defmodule MyAppWeb.Socket do
 end
 ```
 3. Create your channel using the `LiveState.Channel` behaviour:
-
 ```elixir
 defmodule MyAppWeb.Channel do
   use LiveState.Channel, web_module: MyAppWeb
@@ -60,7 +59,6 @@ defmodule MyAppWeb.Channel do
 ```
 
 4. Then define your initial state using the `c:LiveState.Channel.init/3` callback, which will be called after channel joins and is expected to return the initial state:
-
 ```elixir
 def init(_channel, _payload, _socket), do: {:ok, %{foo: "bar"}}
 ```
