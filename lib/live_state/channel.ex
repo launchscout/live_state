@@ -5,10 +5,10 @@ defmodule LiveState.Channel do
   ```
     use LiveState.Channel, web_module: MyAppWeb, max_version: 100
   ```
-  - `message_builder` optional, defaults to `{LiveState.MessageBuilder, ignore_keys: [:__meta__]}`. If
-  set, should be a tuple whose first element is a module that defines `update_state_message/4` and `new_state_message/3` and
-  and second element contains any options. Options are passed as final arg to both functions when invoked.
-  See `LiveState.MessageBuilder` for details
+  - `encoder_opts` optional, defaults to `[ignore_keys: [:__meta__]]`. Options passed to
+  `LiveState.Encoder.encode/2` when encoding state for diffing.
+  - `diff_function` optional, defaults to `&JSONDiff.diff/2`. A function that takes two encoded
+  states (old, new) and returns a JSON patch list.
   - `max_version` optional, defaults to 1000. This is the maximum version number, after which it will
   reset to 0 and begin incrementing again. Version numbers are used to detect a patch message arriving
   out of order. If such a condition is detected by `phx-live-state` a new copy of state is requested.
@@ -16,6 +16,7 @@ defmodule LiveState.Channel do
   import Phoenix.Socket
 
   alias LiveState.Event
+  alias LiveState.Encoder
 
   @doc """
   Returns the initial application state. Called just after connection
@@ -94,16 +95,8 @@ defmodule LiveState.Channel do
       @dialyzer {:nowarn_function, update_state: 2}
 
       @behaviour unquote(__MODULE__)
-      @message_builder (case unquote(
-                         Keyword.get(
-                           opts,
-                           :message_builder,
-                           {LiveState.MessageBuilder, ignore_keys: [:__meta__]}
-                         )
-                       ) do
-        {mod, opts} when is_atom(mod) -> {mod, opts}
-        mod when is_atom(mod) -> {mod, []}
-      end)
+      @encoder_opts unquote(Keyword.get(opts, :encoder_opts, [ignore_keys: [:__meta__]]))
+      @diff_function unquote(Keyword.get(opts, :diff_function, &JSONDiff.diff/2))
       @max_version unquote(Keyword.get(opts, :max_version, 1000))
 
       def join(channel, payload, socket) do
@@ -131,9 +124,13 @@ defmodule LiveState.Channel do
       end
 
       defp initialize_state(state, socket) do
-        {event_name, message} = build_new_state_message(state, 0)
-        push(socket, event_name, message)
-        socket |> assign(state_key(), state) |> assign(state_version_key(), 0)
+        encoded = Encoder.encode(state, @encoder_opts)
+
+        socket
+        |> assign(state_key(), state)
+        |> assign(state_version_key(), 0)
+        |> assign(state_cache_key(), encoded)
+        |> tap(&push_state_change/1)
       end
 
       def handle_info(message, %{assigns: assigns} = socket) do
@@ -145,8 +142,8 @@ defmodule LiveState.Channel do
         |> maybe_handle_reply(socket)
       end
 
-      def handle_in("lvs_refresh", _payload, %{assigns: assigns} = socket) do
-        push_state_change(socket, Map.get(assigns, state_key()), Map.get(assigns, state_version_key()))
+      def handle_in("lvs_refresh", _payload, socket) do
+        push_state_change(socket)
         {:noreply, socket}
       end
 
@@ -170,37 +167,33 @@ defmodule LiveState.Channel do
 
       def state_version_key, do: :version
 
+      def state_cache_key, do: :_encoded_state_cache
+
       def handle_message(_message, state), do: {:noreply, state}
 
       def handle_event(_message, _payload, state), do: {:noreply, state}
 
       defp update_state(%{assigns: assigns} = socket, new_state) do
-        current_state = Map.get(assigns, state_key())
-        new_state_version = increment_version(assigns)
-        {event_name, message} = build_update_message(current_state, new_state, new_state_version)
-        push(socket, event_name, message)
+        old_encoded = Map.fetch!(assigns, state_cache_key())
+        new_encoded = Encoder.encode(new_state, @encoder_opts)
+        patch = @diff_function.(old_encoded, new_encoded)
 
-        {:noreply,
-         socket
-         |> assign(state_key(), new_state)
-         |> assign(state_version_key(), new_state_version)}
-      end
+        case patch do
+          [] ->
+            {:noreply,
+             socket
+             |> assign(state_key(), new_state)
+             |> assign(state_cache_key(), new_encoded)}
 
-      defp build_update_message(current_state, new_state, version) do
-        {mod, opts} = @message_builder
-        if function_exported?(mod, :update_state_message, 4) do
-          mod.update_state_message(current_state, new_state, version, opts)
-        else
-          mod.update_state_message(current_state, new_state, version)
-        end
-      end
+          _ ->
+            new_state_version = increment_version(assigns)
+            push(socket, "state:patch", %{patch: patch, version: new_state_version})
 
-      defp build_new_state_message(new_state, version) do
-        {mod, opts} = @message_builder
-        if function_exported?(mod, :new_state_message, 3) do
-          mod.new_state_message(new_state, version, opts)
-        else
-          mod.new_state_message(new_state, version)
+            {:noreply,
+             socket
+             |> assign(state_key(), new_state)
+             |> assign(state_version_key(), new_state_version)
+             |> assign(state_cache_key(), new_encoded)}
         end
       end
 
@@ -247,15 +240,10 @@ defmodule LiveState.Channel do
         push(socket, "error", error)
       end
 
-      defp push_state_change(socket, state, version) do
-        payload = %{} |> Map.put(state_key(), state) |> Map.put(state_version_key(), version)
-        push(socket, "state:change", payload)
-      end
-
-      defp push_json_patch(socket, current_state, new_state, version) do
-        push(socket, "state:patch", %{
-          patch: JSONDiff.diff(current_state, new_state),
-          version: version
+      defp push_state_change(%{assigns: assigns} = socket) do
+        push(socket, "state:change", %{
+          state: Map.fetch!(assigns, state_cache_key()),
+          version: Map.fetch!(assigns, state_version_key())
         })
       end
 

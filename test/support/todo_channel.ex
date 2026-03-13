@@ -1,22 +1,7 @@
 defmodule LiveState.Test.TodoChannel do
   @moduledoc false
 
-  alias LiveState.MessageBuilder
-
-  defmodule MyMessageBuilder do
-    @moduledoc false
-    def update_state_message(_current_state, new_state, version),
-      do: MessageBuilder.new_state_message(new_state, version)
-
-    def new_state_message(new_state, version),
-      do: MessageBuilder.new_state_message(new_state, version)
-  end
-
-  alias LiveState.MessageBuilder
-
-  use LiveState.Channel,
-    web_module: LiveState.Test.Web,
-    message_builder: MyMessageBuilder
+  use LiveState.Channel, web_module: LiveState.Test.Web
 
   alias LiveState.Event
 
@@ -27,26 +12,26 @@ defmodule LiveState.Test.TodoChannel do
   end
 
   @impl true
-  def handle_event("add_todo", todo, %{todos: todos}) do
-    {:noreply, %{todos: [todo | todos]}}
+  def handle_event("add_todo", todo, %{todos: todos} = state) do
+    {:noreply, %{state | todos: [todo | todos]}}
   end
 
   @impl true
-  def handle_event("add_todo_with_one_reply", todo, %{todos: todos}) do
-    {:reply, %Event{name: "reply_event", detail: %{foo: "bar"}}, %{todos: [todo | todos]}}
+  def handle_event("add_todo_with_one_reply", todo, %{todos: todos} = state) do
+    {:reply, %Event{name: "reply_event", detail: %{foo: "bar"}}, %{state | todos: [todo | todos]}}
   end
 
   @impl true
-  def handle_event("add_todo_with_two_replies", todo, %{todos: todos}) do
+  def handle_event("add_todo_with_two_replies", todo, %{todos: todos} = state) do
     {:reply,
      [
        %Event{name: "reply_event1", detail: %{foo: "bar"}},
        %Event{name: "reply_event2", detail: %{bing: "baz"}}
-     ], %{todos: [todo | todos]}}
+     ], %{state | todos: [todo | todos]}}
   end
 
   @impl true
-  def handle_message({:todo_added, todo}, %{todos: todos}) do
-    {:reply, %Event{name: "reply_event", detail: %{foo: "bar"}}, %{todos: [todo | todos]}}
+  def handle_message({:todo_added, todo}, %{todos: todos} = state) do
+    {:reply, %Event{name: "reply_event", detail: %{foo: "bar"}}, %{state | todos: [todo | todos]}}
   end
 end
