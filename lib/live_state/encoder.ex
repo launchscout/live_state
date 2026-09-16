@@ -2,10 +2,10 @@ defprotocol LiveState.Encoder do
   @moduledoc """
   Allows customization of the representation of a given type
   as the state in a `LiveState.Channel`. It is called *before* serialization
-  and json diffing.
+  and json diffing. Pass `[]` as the second argument when no options are needed.
   """
   @fallback_to_any true
-  def encode(data, opts \\ [])
+  def encode(data, opts)
 end
 
 defimpl LiveState.Encoder, for: Any do
@@ -13,8 +13,11 @@ defimpl LiveState.Encoder, for: Any do
 
   def encode(data, opts) do
     case data do
-      %{__meta__: _meta} = data when is_struct(data) -> Map.from_struct(data) |> Encoder.encode(opts)
-      data -> data
+      %{__meta__: _meta} = data when is_struct(data) ->
+        Map.from_struct(data) |> Encoder.encode(opts)
+
+      data ->
+        data
     end
   end
 
@@ -52,6 +55,7 @@ defimpl LiveState.Encoder, for: Map do
 
   def encode(map, opts \\ []) do
     ignore_keys = Keyword.get(opts, :ignore_keys, [])
+
     Enum.reduce(map, %{}, fn {k, v}, acc ->
       if !(k in ignore_keys) do
         Map.put(acc, k, Encoder.encode(v, opts))
@@ -86,8 +90,8 @@ defimpl LiveState.Encoder, for: List do
   end
 end
 
-if Code.ensure_compiled(Ecto.Association.NotLoaded) do
-  defimpl LiveState.Encoder, for: Ecto.Association.NotLoaded  do
+if Code.ensure_loaded?(Ecto.Association.NotLoaded) do
+  defimpl LiveState.Encoder, for: Ecto.Association.NotLoaded do
     def encode(_, _), do: nil
   end
 end
