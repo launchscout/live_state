@@ -41,7 +41,7 @@ defmodule LiveState.MixProject do
       {:ex_doc, ">= 0.0.0"},
       {:json_diff, ">= 0.0.0"},
       {:jason, ">= 0.0.0"},
-      {:ecto, ">= 0.0.0", only: [:dev, :test]}
+      {:ecto, ">= 0.0.0", optional: true}
     ]
   end
 end

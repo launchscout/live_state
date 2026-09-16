@@ -1,6 +1,4 @@
 defmodule LiveState.TestHelpers do
-
-  require Phoenix.ChannelTest
   import Phoenix.ChannelTest
 
   @doc """
@@ -15,7 +13,7 @@ defmodule LiveState.TestHelpers do
   """
   defmacro assert_state_change(state) do
     quote do
-      assert_push "state:change", %{state: unquote(state)}
+      assert_push("state:change", %{state: unquote(state)})
     end
   end
 
@@ -24,8 +22,7 @@ defmodule LiveState.TestHelpers do
   """
   defmacro assert_state_patch(patch) do
     quote do
-      assert_push "state:patch", %{patch: unquote(patch)}
+      assert_push("state:patch", %{patch: unquote(patch)})
     end
   end
-
 end
